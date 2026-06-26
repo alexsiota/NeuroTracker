@@ -63,6 +63,7 @@ class ObjectTrackingViewModel(application: Application) : AndroidViewModel(appli
     private val memorizeSec  = 3
     private val trackingSec  = 5
     val totalRounds          = 4
+    val totalPossibleHits    = totalRounds * targetCount
 
     var testState            = mutableStateOf(TestState.IDLE);                   private set
     var objects              = mutableStateOf<List<TrackedObject>>(emptyList()); private set

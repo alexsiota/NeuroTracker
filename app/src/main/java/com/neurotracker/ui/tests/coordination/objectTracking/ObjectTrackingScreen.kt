@@ -168,7 +168,7 @@ fun ObjectTrackingScreen(navController: NavController) {
                         ResultCard {
                             ResultRow(
                                 "Aciertos",
-                                "${viewModel.hits.value} / ${viewModel.totalRounds}",
+                                "${viewModel.hits.value} / ${viewModel.totalPossibleHits}",
                                 Color(0xFF2E7D32)
                             )
                             ResultRow(
