@@ -77,7 +77,7 @@ class CognitiveFatigueViewModel(application: Application) : AndroidViewModel(app
     private val reactionTimes   = mutableListOf<Long>()
     private var stimulusShownAt = 0L
     private var pressed         = false
-    private var stimulusActive  = false
+    var stimulusActive          = mutableStateOf(false); private set
     private var testJob: Job?   = null
 
     /**
@@ -151,18 +151,18 @@ class CognitiveFatigueViewModel(application: Application) : AndroidViewModel(app
                 .toInt().coerceAtLeast(0)
 
             val isGo        = (0..99).random() < 70
-            lastIsGo        = isGo
-            stimulus.value  = isGo
-            stimulusActive  = true
-            pressed         = false
+            lastIsGo              = isGo
+            stimulus.value        = isGo
+            stimulusActive.value  = true
+            pressed               = false
             stimulusShownAt = System.currentTimeMillis()
 
             delay(1200)
 
             if (!pressed && isGo) blockErrors.value++
 
-            stimulusActive = false
-            stimulus.value = false
+            stimulusActive.value = false
+            stimulus.value       = false
 
             delay(800)
         }
@@ -171,20 +171,24 @@ class CognitiveFatigueViewModel(application: Application) : AndroidViewModel(app
     }
 
     /**
-     * Registra la pulsación del usuario sobre el área del estímulo.
+     * Registra la pulsación del usuario sobre el área del test.
      *
-     * Usa [lastIsGo] en lugar de [stimulus] para evaluar el tipo del estímulo,
-     * evitando que lecturas tardías reciban false cuando la corrutina ya limpió
-     * [stimulus] tras el delay.
-     *
-     * Reglas: GO pulsado → acierto. NOGO pulsado → error.
+     * Reglas:
+     *  - GO activo + pulsar    → acierto (solo la primera pulsación).
+     *  - NOGO activo + pulsar  → error   (solo la primera pulsación).
+     *  - Sin estímulo + pulsar → error de comisión (cada pulsación cuenta).
      */
     fun onPress() {
-        if (testState.value != TestState.BLOCK_RUNNING || pressed || !stimulusActive) return
-        pressed = true
-        if (lastIsGo) {
-            reactionTimes.add(System.currentTimeMillis() - stimulusShownAt)
-            blockHits.value++
+        if (testState.value != TestState.BLOCK_RUNNING) return
+        if (stimulusActive.value) {
+            if (pressed) return
+            pressed = true
+            if (lastIsGo) {
+                reactionTimes.add(System.currentTimeMillis() - stimulusShownAt)
+                blockHits.value++
+            } else {
+                blockErrors.value++
+            }
         } else {
             blockErrors.value++
         }
