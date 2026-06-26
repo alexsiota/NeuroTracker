@@ -380,7 +380,7 @@ class GlobalCognitiveViewModel(application: Application) : AndroidViewModel(appl
         repeat(vmTotalRounds) { roundIndex ->
             vmRound.value     = roundIndex + 1
             val length        = vmLengthForRound(roundIndex + 1)
-            val seq           = List(length) { Random.nextInt(0, 9) }
+            val seq           = (0..8).shuffled().take(length)
             vmSequence.value  = seq
             vmUserInput.value = emptyList()
             vmPhase.value     = "showing"
