@@ -296,23 +296,6 @@ fun MainScreen(navController: NavController) {
         )
     }
 
-    viewModel.newlyUnlockedBadge.value?.let { badge ->
-        AlertDialog(
-            onDismissRequest = { viewModel.dismissBadgeNotification() },
-            icon  = { Text(badge.emoji, fontSize = 48.sp) },
-            title = { Text("🎉 ¡Logro desbloqueado!", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center) },
-            text  = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                    Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                        Text(badge.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    Text(badge.description, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-                }
-            },
-            confirmButton = { Button(onClick = { viewModel.dismissBadgeNotification() }, modifier = Modifier.fillMaxWidth()) { Text("¡Genial!") } }
-        )
-    }
 }
 
 /**
