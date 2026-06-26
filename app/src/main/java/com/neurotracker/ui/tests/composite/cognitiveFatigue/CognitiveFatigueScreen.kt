@@ -112,47 +112,57 @@ fun CognitiveFatigueScreen(navController: NavController) {
 
                         // Área de estímulo con altura fija para evitar saltos de layout
                         Box(modifier = Modifier.height(220.dp), contentAlignment = Alignment.Center) {
-                            if (viewModel.stimulus.value) {
-                                // GO — círculo verde + etiqueta
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .clickable { viewModel.onPress() }
-                                        .semantics { contentDescription = "Círculo verde. ¡Pulsa ahora!" }
-                                ) {
-                                    Box(
+                            when {
+                                viewModel.stimulus.value -> {
+                                    // GO — círculo verde + etiqueta
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
                                         modifier = Modifier
-                                            .size(160.dp)
-                                            .background(Color(0xFF2E7D32), CircleShape)
-                                    )
-                                    Spacer(Modifier.height(12.dp))
-                                    Text(
-                                        "● PULSA",
-                                        color      = Color(0xFF2E7D32),
-                                        fontSize   = 20.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                            .clickable { viewModel.onPress() }
+                                            .semantics { contentDescription = "Círculo verde. ¡Pulsa ahora!" }
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(160.dp)
+                                                .background(Color(0xFF2E7D32), CircleShape)
+                                        )
+                                        Spacer(Modifier.height(12.dp))
+                                        Text(
+                                            "● PULSA",
+                                            color      = Color(0xFF2E7D32),
+                                            fontSize   = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                 }
-                            } else {
-                                // NOGO — cuadrado rojo + etiqueta
-                                // También tiene clickable para registrar el error de comisión
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .clickable { viewModel.onPress() }
-                                        .semantics { contentDescription = "Cuadrado rojo. No pulses." }
-                                ) {
+                                viewModel.stimulusActive.value -> {
+                                    // NOGO activo — cuadrado rojo + etiqueta
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier
+                                            .clickable { viewModel.onPress() }
+                                            .semantics { contentDescription = "Cuadrado rojo. No pulses." }
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(160.dp)
+                                                .background(Color(0xFFC62828), RoundedCornerShape(12.dp))
+                                        )
+                                        Spacer(Modifier.height(12.dp))
+                                        Text(
+                                            "■ NO PULSES",
+                                            color      = Color(0xFFC62828),
+                                            fontSize   = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                                else -> {
+                                    // Inter-estímulo — área clicable para registrar error de comisión
                                     Box(
                                         modifier = Modifier
-                                            .size(160.dp)
-                                            .background(Color(0xFFC62828), RoundedCornerShape(12.dp))
-                                    )
-                                    Spacer(Modifier.height(12.dp))
-                                    Text(
-                                        "■ NO PULSES",
-                                        color      = Color(0xFFC62828),
-                                        fontSize   = 20.sp,
-                                        fontWeight = FontWeight.Bold
+                                            .fillMaxSize()
+                                            .clickable { viewModel.onPress() }
                                     )
                                 }
                             }
