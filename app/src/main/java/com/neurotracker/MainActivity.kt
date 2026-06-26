@@ -73,7 +73,7 @@ import kotlinx.coroutines.launch
  *  - Grafo de navegación completo de la aplicación.
  *  - Destino de inicio dinámico según onboarding y sesión.
  *
- * ─── Fix: ViewModel compartido para el flujo de recuperación ─────────────────
+ * ─── Nota: ViewModel compartido para el flujo de recuperación ─────────────────
  *
  * Las tres pantallas del flujo de recuperación de contraseña
  * (ForgotPasswordScreen, VerifyCodeScreen, ResetPasswordScreen) deben
@@ -168,7 +168,7 @@ class MainActivity : ComponentActivity() {
 
                     // ── Flujo recuperación contraseña (ViewModel compartido) ──
                     //
-                    // FIX: las 3 pantallas usan getBackStackEntry(FORGOT_PASSWORD)
+                    // Nota: las 3 pantallas usan getBackStackEntry(FORGOT_PASSWORD)
                     // como viewModelStoreOwner para compartir la misma instancia
                     // de ForgotPasswordViewModel. Sin esto, verifiedEmail se pierde
                     // entre pantallas y ResetPasswordScreen da "error al encontrar cuenta".

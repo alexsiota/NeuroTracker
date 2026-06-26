@@ -70,8 +70,12 @@ fun ProfileScreen(
     var showSupportDialog by remember { mutableStateOf(false) }
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    val cameraLauncher  = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success -> viewModel.onCameraTaken(success) }
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? -> viewModel.onGalleryImageSelected(uri) }
+    val cameraLauncher  = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        viewModel.onCameraTaken(success)
+    }
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        viewModel.onGalleryImageSelected(uri)
+    }
 
     Scaffold(
         topBar = {
@@ -227,6 +231,7 @@ fun ProfileScreen(
  */
 @Composable
 private fun UserPhotoCard(viewModel: ProfileViewModel) {
+    val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(2.dp)) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -240,7 +245,12 @@ private fun UserPhotoCard(viewModel: ProfileViewModel) {
             ) {
                 key(viewModel.photoVersion.intValue) {
                     if (viewModel.profilePhotoUri.value != null) {
-                        AsyncImage(model = viewModel.profilePhotoUri.value, contentDescription = "Foto de perfil", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().clip(CircleShape))
+                        AsyncImage(
+                            model              = buildProfileImageRequest(context, viewModel.profilePhotoUri.value, viewModel.userEmail.value),
+                            contentDescription = "Foto de perfil",
+                            contentScale       = ContentScale.Crop,
+                            modifier           = Modifier.fillMaxSize().clip(CircleShape)
+                        )
                     } else {
                         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary, CircleShape), contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.Person, contentDescription = "Avatar por defecto", tint = Color.White, modifier = Modifier.size(32.dp))
@@ -255,14 +265,12 @@ private fun UserPhotoCard(viewModel: ProfileViewModel) {
             Spacer(Modifier.width(16.dp))
 
             Column {
-                // Saludo con el nombre actual
                 Text(
                     "Hola, ${viewModel.userName.value.ifBlank { "Usuario" }}",
                     style      = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(viewModel.userEmail.value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Pulsa para cambiar foto", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -357,7 +365,7 @@ private fun ChangeEmailDialog(viewModel: ProfileViewModel) {
                 if (viewModel.emailSuccess.value) {
                     Text("✅ Email actualizado correctamente", color = Color(0xFF2E7D32))
                 } else {
-                    // FIX: pide email actual para verificar identidad
+                    // Nota: pide email actual para verificar identidad
                     OutlinedTextField(
                         value         = viewModel.currentEmail.value,
                         onValueChange = viewModel::onCurrentEmailChange,
@@ -378,7 +386,7 @@ private fun ChangeEmailDialog(viewModel: ProfileViewModel) {
                         Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
 
-                    // FIX: sugerencias si el email ya existe
+                    // Nota: sugerencias si el email ya existe
                     if (viewModel.emailSuggestions.value.isNotEmpty()) {
                         Text("Sugerencias disponibles:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         viewModel.emailSuggestions.value.forEach { suggestion ->
@@ -448,6 +456,11 @@ private fun ChangePasswordDialog(viewModel: ProfileViewModel) {
     )
 }
 
+/**
+ * Diálogo informativo con términos, privacidad y aviso legal.
+ *
+ * @param onDismiss Acción ejecutada al cerrar el diálogo.
+ */
 @Composable
 private fun LegalDialog(onDismiss: () -> Unit) {
     AlertDialog(
@@ -473,6 +486,11 @@ private fun LegalDialog(onDismiss: () -> Unit) {
     )
 }
 
+/**
+ * Diálogo con la información de contacto de soporte.
+ *
+ * @param onDismiss Acción ejecutada al cerrar el diálogo.
+ */
 @Composable
 private fun SupportDialog(onDismiss: () -> Unit) {
     AlertDialog(
@@ -498,6 +516,15 @@ private fun SupportDialog(onDismiss: () -> Unit) {
     )
 }
 
+/**
+ * Campo reutilizable para introducir contraseñas con visibilidad alternable.
+ *
+ * @param label Etiqueta del campo.
+ * @param value Valor actual.
+ * @param onValueChange Callback de actualización.
+ * @param visible Indica si el texto se muestra sin ocultar.
+ * @param onToggle Callback para alternar la visibilidad.
+ */
 @Composable
 private fun PasswordField(label: String, value: String, onValueChange: (String) -> Unit, visible: Boolean, onToggle: () -> Unit) {
     OutlinedTextField(
@@ -515,11 +542,24 @@ private fun PasswordField(label: String, value: String, onValueChange: (String) 
     )
 }
 
+/**
+ * Etiqueta de sección usada para agrupar ajustes del perfil.
+ *
+ * @param text Texto de la sección.
+ */
 @Composable
 private fun SectionLabel(text: String) {
     Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(horizontal = 4.dp))
 }
 
+/**
+ * Fila interactiva de ajustes con icono, título y subtítulo opcional.
+ *
+ * @param icon Icono mostrado al inicio.
+ * @param title Texto principal.
+ * @param subtitle Texto secundario opcional.
+ * @param onClick Acción ejecutada al pulsar.
+ */
 @Composable
 private fun SettingsRow(icon: ImageVector, title: String, subtitle: String? = null, onClick: () -> Unit) {
     Row(
@@ -536,6 +576,13 @@ private fun SettingsRow(icon: ImageVector, title: String, subtitle: String? = nu
     }
 }
 
+/**
+ * Fila de ajustes deshabilitada para opciones no disponibles.
+ *
+ * @param icon Icono mostrado al inicio.
+ * @param title Texto principal.
+ * @param subtitle Texto secundario opcional.
+ */
 @Composable
 private fun SettingsRowDisabled(icon: ImageVector, title: String, subtitle: String? = null) {
     Row(

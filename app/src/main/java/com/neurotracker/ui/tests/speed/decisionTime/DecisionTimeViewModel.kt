@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel del Test de Tiempo de Decisión.
  *
- * ─── Fix: condición de carrera entre omisión y respuesta tardía ───────────────
+ * ─── Nota: condición de carrera entre omisión y respuesta tardía ───────────────
  *
  * Problema original: cuando el timeout de 3s se agotaba (omisión), la corrutina
  * ejecutaba `errors.value++` y avanzaba de ronda. Pero si el usuario pulsaba
@@ -37,6 +37,9 @@ import kotlinx.coroutines.launch
  */
 class DecisionTimeViewModel(application: Application) : AndroidViewModel(application) {
 
+    /**
+     * Estados posibles del flujo del test.
+     */
     enum class TestState { IDLE, RUNNING, FINISHED }
 
     /**
@@ -82,7 +85,7 @@ class DecisionTimeViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Flag de control de concurrencia.
      *
-     * FIX: `@Volatile` garantiza que cualquier hilo (UI o corrutina) que
+     * Nota: `@Volatile` garantiza que cualquier hilo (UI o corrutina) que
      * lo lea obtenga el valor más reciente, sin caché de CPU local.
      * Se activa en [onOptionSelected] Y en el timeout del bucle de polling,
      * en ambos casos ANTES de modificar los contadores.
@@ -107,7 +110,7 @@ class DecisionTimeViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Ejecuta las [TOTAL_ROUNDS] rondas secuencialmente.
      *
-     * FIX: el timeout ahora marca [hasAnswered] = true ANTES de contabilizar
+     * Nota: el timeout ahora marca [hasAnswered] = true ANTES de contabilizar
      * la omisión, bloqueando cualquier llamada concurrente a [onOptionSelected].
      */
     private suspend fun runRounds() {
@@ -127,7 +130,7 @@ class DecisionTimeViewModel(application: Application) : AndroidViewModel(applica
                 delay(50)
             }
 
-            // FIX: marcar como respondido ANTES de contabilizar omisión
+            // Nota: marcar como respondido ANTES de contabilizar omisión
             // para bloquear llamadas concurrentes desde la UI
             if (!hasAnswered) {
                 hasAnswered      = true
@@ -143,14 +146,14 @@ class DecisionTimeViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Registra la respuesta del usuario.
      *
-     * FIX: la primera línea comprueba el flag `@Volatile` [hasAnswered].
+     * Nota: la primera línea comprueba el flag `@Volatile` [hasAnswered].
      * Si ya fue marcado por el timeout en la corrutina, retorna inmediatamente
      * sin contabilizar nada, eliminando la condición de carrera.
      *
      * @param index Índice de la opción pulsada (0–3).
      */
     fun onOptionSelected(index: Int) {
-        // FIX: comprobación atómica del flag @Volatile
+        // Nota: comprobación atómica del flag @Volatile
         if (testState.value != TestState.RUNNING || hasAnswered) return
 
         // Marcar respondido ANTES de modificar contadores

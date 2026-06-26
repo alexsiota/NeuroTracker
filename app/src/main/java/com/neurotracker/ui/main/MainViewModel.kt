@@ -1,6 +1,7 @@
 package com.neurotracker.ui.main
 
 import android.app.Application
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,6 +46,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var userName        = mutableStateOf(""); private set
     var userEmail       = mutableStateOf(""); private set
+    var photoVersion    = mutableIntStateOf(0); private set
     var recentTests     = mutableStateOf<List<RecentTestUi>>(emptyList()); private set
     var avgPrecisionAll = mutableStateOf(0);  private set
     var streakDays      = mutableStateOf(0);  private set
@@ -68,6 +70,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         loadUser()
         startCountdowns()
         listenEmailChanges()
+        listenPhotoChanges()
     }
 
     /**
@@ -105,6 +108,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             SessionEvents.emailChanged.collect {
                 reload()
+            }
+        }
+    }
+
+    private fun listenPhotoChanges() {
+        viewModelScope.launch {
+            SessionEvents.photoChanged.collect {
+                photoVersion.intValue++
             }
         }
     }
@@ -288,6 +299,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val executiveTypes = setOf("task_switching","response_inhibition","planning")
         val coordTypes     = setOf("object_tracking","visuomotor","spatial_perception")
         val compositeTypes = setOf("global_cognitive","cognitive_fatigue","dual_task")
+        /**
+         * Calcula la media de precisión para un conjunto de tipos de test.
+         *
+         * @param types Identificadores internos de tests pertenecientes a un bloque.
+         * @return Media de precisión o null si no hay resultados de ese bloque.
+         */
         fun avg(types: Set<String>): Float? {
             val f = results.filter { it.testType in types }
             return if (f.isEmpty()) null else f.map { it.precisionPct }.average().toFloat()

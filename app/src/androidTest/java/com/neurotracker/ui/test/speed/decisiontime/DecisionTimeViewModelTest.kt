@@ -1,4 +1,4 @@
-package com.neurotracker.speed.decisiontime
+package com.neurotracker.ui.test.speed.decisiontime
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

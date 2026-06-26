@@ -233,4 +233,65 @@ class ForgotPasswordViewModelTest {
         assertFalse(navigated)
         assertEquals("Las contraseñas no coinciden", viewModel.errorStep3.value)
     }
+
+    @Test
+    fun saveNewPassword_withTooLongPassword_setsMaxLengthError() = runTest {
+        val long = "a".repeat(33)
+        viewModel.onNewPasswordChange(long)
+        viewModel.onConfirmPasswordChange(long)
+        var navigated = false
+        viewModel.saveNewPassword { navigated = true }
+        assertFalse(navigated)
+        assertEquals("Máximo 32 caracteres", viewModel.errorStep3.value)
+    }
+
+    @Test
+    fun saveNewPassword_withValidPasswordButNoVerifiedEmail_setsSessionExpiredError() = runTest {
+        viewModel.onNewPasswordChange("password123")
+        viewModel.onConfirmPasswordChange("password123")
+        var navigated = false
+        viewModel.saveNewPassword { navigated = true }
+        assertFalse(navigated)
+        assertEquals("Sesión expirada. Vuelve a introducir tu email.", viewModel.errorStep3.value)
+    }
+
+    @Test
+    fun verifyCode_withCorrectCode_setsCodeVerifiedAndCallsOnSuccess() = runTest {
+        viewModel.resendCode()
+        val code = viewModel.demoCode.value
+        viewModel.onCodeChange(code)
+        var navigated = false
+        viewModel.verifyCode { navigated = true }
+        assertTrue(viewModel.codeVerified.value)
+        assertTrue(navigated)
+        assertNull(viewModel.errorStep2.value)
+    }
+
+    @Test
+    fun onNewPasswordChange_clearsErrorStep3() = runTest {
+        viewModel.saveNewPassword { }
+        assertNotNull(viewModel.errorStep3.value)
+        viewModel.onNewPasswordChange("newvalue")
+        assertNull(viewModel.errorStep3.value)
+    }
+
+    @Test
+    fun onConfirmPasswordChange_clearsErrorStep3() = runTest {
+        viewModel.saveNewPassword { }
+        assertNotNull(viewModel.errorStep3.value)
+        viewModel.onConfirmPasswordChange("newvalue")
+        assertNull(viewModel.errorStep3.value)
+    }
+
+    @Test
+    fun onNewPasswordChange_updatesField() {
+        viewModel.onNewPasswordChange("mypassword")
+        assertEquals("mypassword", viewModel.newPassword.value)
+    }
+
+    @Test
+    fun onConfirmPasswordChange_updatesField() {
+        viewModel.onConfirmPasswordChange("myconfirm")
+        assertEquals("myconfirm", viewModel.confirmPassword.value)
+    }
 }

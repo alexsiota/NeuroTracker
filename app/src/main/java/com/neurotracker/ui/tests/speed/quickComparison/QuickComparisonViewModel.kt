@@ -49,6 +49,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+/**
+ * ViewModel del Test de Comparación Rápida.
+ *
+ * Controla las rondas de comparación visual, el registro de respuestas,
+ * los tiempos de reacción y el guardado del resultado.
+ *
+ * @param application Contexto de aplicación para Room y SessionManager.
+ */
 class QuickComparisonViewModel(application: Application) : AndroidViewModel(application) {
 
     /**

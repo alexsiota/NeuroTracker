@@ -26,6 +26,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.neurotracker.ui.navigation.Routes
 
+/**
+ * Pantalla de recuperación de contraseña, paso 2.
+ *
+ * Presenta el código temporal de demostración, captura los seis caracteres
+ * introducidos por el usuario y avanza al cambio de contraseña al verificarlo.
+ *
+ * @param navController Controlador de navegación del flujo.
+ * @param viewModel ViewModel compartido por los pasos de recuperación.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerifyCodeScreen(

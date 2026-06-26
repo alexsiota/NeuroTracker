@@ -80,6 +80,12 @@ class SimulatedEegDataSource : EegDataSource {
         while (true) {
             t += SAMPLE_RATE_MS / 1000.0
 
+            /**
+             * Calcula una amplitud variable para la banda indicada.
+             *
+             * @param band Nombre interno de la banda EEG.
+             * @return Amplitud modulada dentro del rango seguro de simulación.
+             */
             fun modulatedAmplitude(band: String): Float {
                 val base = baseAmplitudes[band] ?: 0.4f
                 val modF = modulationFreqs[band] ?: 0.1
@@ -135,6 +141,13 @@ private fun generateFreshSample(): EegSample {
     val tNow = System.currentTimeMillis() / 1000.0
 
     // Cada banda tiene frecuencia base distinta → valores siempre diferentes
+    /**
+     * Genera el valor instantáneo de una banda EEG simulada.
+     *
+     * @param freq Frecuencia base de la banda.
+     * @param baseAmp Amplitud base usada para escalar la señal.
+     * @return Valor normalizado entre -1 y 1.
+     */
     fun band(freq: Double, baseAmp: Float): Float {
         val signal = sin(2 * PI * freq * tNow).toFloat() * baseAmp
         val noise  = (Random.nextFloat() * 2f - 1f) * 0.15f

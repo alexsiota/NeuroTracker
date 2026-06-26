@@ -15,7 +15,7 @@ import kotlin.random.Random
 /**
  * ViewModel del Test de Doble Tarea (Dual Task).
  *
- * ─── Fix: omisiones N-Back siempre cuentan como error ────────────────────────
+ * ─── Nota: omisiones N-Back siempre cuentan como error ────────────────────────
  *
  * Problema original: la omisión N-Back solo se penalizaba si el símbolo actual
  * era igual al anterior (`symbol == nbackPrev`):
@@ -38,6 +38,9 @@ import kotlin.random.Random
  */
 class DualTaskViewModel(application: Application) : AndroidViewModel(application) {
 
+    /**
+     * Estados posibles del flujo del test.
+     */
     enum class TestState { IDLE, RUNNING, FINISHED }
 
     private val db             = NeuroTrackerDatabase.getDatabase(application)
@@ -116,7 +119,7 @@ class DualTaskViewModel(application: Application) : AndroidViewModel(application
                     nbackAnswered.value   = false
                     delay(2000)
 
-                    // FIX: omisión siempre es error a partir del 2º estímulo,
+                    // Nota: omisión siempre es error a partir del 2º estímulo,
                     // independientemente de si debía responder SÍ o NO.
                     // Antes solo penalizaba cuando symbol == nbackPrev (solo omisiones de SÍ).
                     if (!nbackAnswered.value && nbackIndex.value > 1) {
@@ -198,11 +201,17 @@ class DualTaskViewModel(application: Application) : AndroidViewModel(application
         nbackSymbol.value     = null
     }
 
+    /**
+     * Finaliza ambas tareas y prepara la pantalla de resultados.
+     */
     private fun finishTest() {
         testState.value = TestState.FINISHED
         saveResult()
     }
 
+    /**
+     * Guarda el resultado combinado del test junto a la muestra EEG.
+     */
     private fun saveResult() {
         viewModelScope.launch {
             val email = sessionManager.getUserEmail() ?: return@launch

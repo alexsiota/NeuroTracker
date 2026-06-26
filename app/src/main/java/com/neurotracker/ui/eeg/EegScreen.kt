@@ -3,7 +3,7 @@ package com.neurotracker.ui.eeg
 /**
  * Pantalla de Simulación EEG.
  *
- * ─── Fix: layout fijo para la card de estado ─────────────────────────────────
+ * ─── Nota: layout fijo para la card de estado ─────────────────────────────────
  *
  * Problema original: el texto "Relajado · Atención pasiva" (banda dominante)
  * cambiaba de longitud al actualizarse, haciendo que la card de estado se
@@ -88,7 +88,7 @@ fun EegScreen(navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // FIX: card de estado con altura FIJA para que no salte al cambiar el texto
+            // Nota: card de estado con altura FIJA para que no salte al cambiar el texto
             Card(
                 shape    = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -120,7 +120,7 @@ fun EegScreen(navController: NavController) {
                         )
                     }
                     Spacer(Modifier.height(6.dp))
-                    // FIX: maxLines + overflow para que el texto no redimensione la card
+                    // Nota: maxLines + overflow para que el texto no redimensione la card
                     Text(
                         viewModel.cognitiveState.value,
                         style    = MaterialTheme.typography.titleMedium,
@@ -197,7 +197,7 @@ private fun CompactEegView(viewModel: EegViewModel) {
 /**
  * Vista detallada: una tarjeta por banda con altura fija.
  *
- * FIX: cada [WaveCard] tiene altura fija para evitar saltos de layout
+ * Nota: cada [WaveCard] tiene altura fija para evitar saltos de layout
  * cuando los valores de potencia cambian.
  *
  * @param viewModel ViewModel con los buffers y potencias.
@@ -215,7 +215,7 @@ private fun DetailEegView(viewModel: EegViewModel) {
 /**
  * Tarjeta de banda EEG con gráfica de altura fija.
  *
- * FIX: [Modifier.height(160.dp)] fijo para que el canvas no se redimensione
+ * Nota: [Modifier.height(160.dp)] fijo para que el canvas no se redimensione
  * al actualizar los puntos de señal.
  *
  * @param title    Nombre y rango de frecuencia.
@@ -233,7 +233,7 @@ private fun WaveCard(title: String, subtitle: String, points: List<Float>, color
                     Text(title,    color = color,                                      style = MaterialTheme.typography.titleSmall, maxLines = 1)
                     Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,  maxLines = 1)
                 }
-                // FIX: ancho fijo para el porcentaje, evita que cambie el layout al variar dígitos
+                // Nota: ancho fijo para el porcentaje, evita que cambie el layout al variar dígitos
                 Text(
                     "${power.toInt()}%",
                     color    = color,
@@ -244,7 +244,7 @@ private fun WaveCard(title: String, subtitle: String, points: List<Float>, color
                 )
             }
             Spacer(Modifier.height(8.dp))
-            // FIX: altura fija para el canvas de ondas — no salta al actualizarse
+            // Nota: altura fija para el canvas de ondas — no salta al actualizarse
             Box(modifier = Modifier.fillMaxWidth().height(100.dp)) {
                 EegWaveCanvas(points = points, color = color, strokeWidth = 2.5f, filled = true)
             }
@@ -284,7 +284,7 @@ private fun BandPowerPanel(viewModel: EegViewModel) {
 @Composable
 private fun BandBar(label: String, power: Float, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        // FIX: ancho fijo para la etiqueta
+        // Nota: ancho fijo para la etiqueta
         Text(label, color = color, style = MaterialTheme.typography.bodySmall, modifier = Modifier.width(60.dp), maxLines = 1)
         Spacer(Modifier.width(8.dp))
         LinearProgressIndicator(
@@ -294,7 +294,7 @@ private fun BandBar(label: String, power: Float, color: Color) {
             trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
         Spacer(Modifier.width(8.dp))
-        // FIX: ancho fijo para el porcentaje
+        // Nota: ancho fijo para el porcentaje
         Text("${power.toInt()}%", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, modifier = Modifier.width(36.dp), maxLines = 1)
     }
 }

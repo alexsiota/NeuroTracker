@@ -34,6 +34,9 @@ class AchievementsViewModel(application: Application) : AndroidViewModel(applica
 
     init { loadAchievements() }
 
+    /**
+     * Carga los resultados del usuario actual y recalcula el estado de logros.
+     */
     private fun loadAchievements() {
         viewModelScope.launch {
             val email = sessionManager.getUserEmail()
@@ -43,7 +46,7 @@ class AchievementsViewModel(application: Application) : AndroidViewModel(applica
                 return@launch
             }
 
-            // Fix: usar .first() en lugar de .collect { return@collect }
+            // Nota: usar .first() en lugar de .collect { return@collect }
             // .collect con return@collect es una expresión non-local return que
             // no compila en Kotlin cuando la lambda no es inline.
             // .first() obtiene la primera emisión del Flow y suspende hasta recibirla.
@@ -54,6 +57,12 @@ class AchievementsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Construye el catálogo completo de logros y marca cuáles están desbloqueados.
+     *
+     * @param results Resultados de tests del usuario actual.
+     * @return Lista completa de logros con su estado calculado.
+     */
     private fun buildAllAchievements(results: List<TestResultEntity>): List<Achievement> {
         val totalTests   = results.size
         val testTypes    = results.map { it.testType }.toSet()

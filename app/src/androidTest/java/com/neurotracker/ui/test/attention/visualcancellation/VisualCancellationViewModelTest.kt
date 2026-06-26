@@ -1,4 +1,4 @@
-package com.neurotracker.attention.visualcancellation
+package com.neurotracker.ui.test.attention.visualcancellation
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

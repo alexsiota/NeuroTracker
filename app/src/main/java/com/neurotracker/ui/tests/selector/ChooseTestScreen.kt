@@ -33,6 +33,14 @@ import com.neurotracker.ui.navigation.Routes
 import com.neurotracker.ui.tests.components.ExpandableTestBlock
 import com.neurotracker.ui.tests.components.TestItem
 
+/**
+ * Pantalla de selección de test cognitivo.
+ *
+ * Agrupa los tests por bloque cognitivo y navega a la ruta correspondiente
+ * cuando el usuario selecciona una prueba.
+ *
+ * @param navController Controlador usado para abrir las pantallas de test.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChooseTestScreen(navController: NavController) {

@@ -128,7 +128,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     /**
      * Elimina un resultado de test por su id.
      *
-     * ─── Fix del bug de borrado ───────────────────────────────────────────────
+     * ─── Nota del bug de borrado ───────────────────────────────────────────────
      *
      * Antes: `database.testResultDao().deleteById(id)` sin garantía de
      * re-emisión del Flow en todos los dispositivos/emuladores.

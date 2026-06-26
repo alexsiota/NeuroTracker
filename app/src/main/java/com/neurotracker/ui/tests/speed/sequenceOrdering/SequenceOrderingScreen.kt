@@ -3,7 +3,7 @@ package com.neurotracker.ui.tests.speed.sequenceOrdering
 /**
  * Pantalla del Test de Ordenación de Secuencias.
  *
- * ─── Fix: muestra cuenta atrás de la ronda ───────────────────────────────────
+ * ─── Nota: muestra cuenta atrás de la ronda ───────────────────────────────────
  *
  * Se añade el temporizador [SequenceOrderingViewModel.remainingMs] visible
  * en la UI para que el usuario sepa cuánto tiempo le queda por ronda.
@@ -87,7 +87,7 @@ fun SequenceOrderingScreen(navController: NavController) {
                         TestProgress(viewModel.currentRound.value, 10)
                         Spacer(Modifier.height(12.dp))
 
-                        // Cuenta atrás de la ronda (FIX: nuevo)
+                        // Cuenta atrás de la ronda (Nota: nuevo)
                         val secondsLeft = (viewModel.remainingMs.value / 1000L).toInt() + 1
                         val timerColor  = when {
                             secondsLeft > 5  -> MaterialTheme.colorScheme.onSurfaceVariant

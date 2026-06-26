@@ -4,6 +4,11 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
+/**
+ * Factory encargada de crear [AchievementsViewModel] con contexto de aplicación.
+ *
+ * @param application Contexto necesario para acceder a Room y a la sesión.
+ */
 class AchievementsViewModelFactory(
     private val application: Application
 ) : ViewModelProvider.Factory {

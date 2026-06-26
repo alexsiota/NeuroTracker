@@ -20,6 +20,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.neurotracker.ui.tests.components.*
 
+/**
+ * Pantalla del Test de Stroop.
+ *
+ * Muestra instrucciones, estímulos de color-palabra, botones de respuesta y
+ * resultados finales del test.
+ *
+ * @param navController Controlador usado para volver o finalizar la prueba.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StroopScreen(navController: NavController) {

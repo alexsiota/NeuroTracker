@@ -9,6 +9,14 @@ import com.neurotracker.data.repository.UserRepository
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 
+/**
+ * ViewModel del flujo de recuperación de contraseña.
+ *
+ * Mantiene el estado de los tres pasos del proceso: validación del email,
+ * verificación del código temporal y guardado de la nueva contraseña.
+ *
+ * @param application Contexto de aplicación para acceder a Room.
+ */
 class ForgotPasswordViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db             = NeuroTrackerDatabase.getDatabase(application)
@@ -36,8 +44,18 @@ class ForgotPasswordViewModel(application: Application) : AndroidViewModel(appli
     var errorStep3      = mutableStateOf<String?>(null); private set
     var passwordChanged = mutableStateOf(false); private set
 
+    /**
+     * Actualiza el email introducido y limpia el error del primer paso.
+     *
+     * @param value Nuevo valor del campo email.
+     */
     fun onEmailChange(value: String) { email.value = value; errorStep1.value = null }
 
+    /**
+     * Valida el email y genera un código temporal si la cuenta existe.
+     *
+     * @param onSuccess Acción ejecutada cuando el código queda preparado.
+     */
     fun sendCode(onSuccess: () -> Unit) {
         errorStep1.value = null
         if (email.value.isBlank()) { errorStep1.value = "Introduce tu email"; return }
@@ -57,10 +75,20 @@ class ForgotPasswordViewModel(application: Application) : AndroidViewModel(appli
     }
 
     // Código de 6 caracteres (reducido de 7 para que los cuadros entren mejor)
+    /**
+     * Actualiza el código escrito por el usuario.
+     *
+     * @param value Código parcial o completo introducido desde la UI.
+     */
     fun onCodeChange(value: String) {
         if (value.length <= 6) { enteredCode.value = value.uppercase(); errorStep2.value = null }
     }
 
+    /**
+     * Comprueba el código introducido contra el código generado.
+     *
+     * @param onSuccess Acción ejecutada cuando el código es correcto.
+     */
     fun verifyCode(onSuccess: () -> Unit) {
         errorStep2.value = null
         if (enteredCode.value.length < 6) { errorStep2.value = "El código tiene 6 caracteres"; return }
@@ -70,6 +98,9 @@ class ForgotPasswordViewModel(application: Application) : AndroidViewModel(appli
 
     // Se llama SIEMPRE al entrar en VerifyCodeScreen (LaunchedEffect(Unit))
     // Genera nuevo código y limpia los cuadros
+    /**
+     * Genera un nuevo código de verificación y reinicia el estado del segundo paso.
+     */
     fun resendCode() {
         val code       = generateCode()
         generatedCode  = code
@@ -79,9 +110,25 @@ class ForgotPasswordViewModel(application: Application) : AndroidViewModel(appli
         codeVerified.value = false
     }
 
+    /**
+     * Actualiza la nueva contraseña introducida.
+     *
+     * @param value Nuevo valor del campo.
+     */
     fun onNewPasswordChange(value: String)     { newPassword.value = value; errorStep3.value = null }
+
+    /**
+     * Actualiza la confirmación de la nueva contraseña.
+     *
+     * @param value Nuevo valor del campo.
+     */
     fun onConfirmPasswordChange(value: String) { confirmPassword.value = value; errorStep3.value = null }
 
+    /**
+     * Valida y guarda la nueva contraseña del usuario verificado.
+     *
+     * @param onSuccess Acción ejecutada cuando la contraseña se actualiza.
+     */
     fun saveNewPassword(onSuccess: () -> Unit) {
         errorStep3.value = null
         when {
@@ -102,11 +149,22 @@ class ForgotPasswordViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    /**
+     * Genera un código alfanumérico temporal de seis caracteres.
+     *
+     * @return Código en mayúsculas para verificar la recuperación.
+     */
     private fun generateCode(): String {
         val pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..6).map { pool.random() }.joinToString("")
     }
 
+    /**
+     * Calcula el hash SHA-256 de una contraseña.
+     *
+     * @param password Contraseña en texto plano.
+     * @return Hash hexadecimal de la contraseña.
+     */
     private fun hash(password: String): String {
         val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }

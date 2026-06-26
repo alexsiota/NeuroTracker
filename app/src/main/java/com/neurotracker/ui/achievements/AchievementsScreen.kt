@@ -21,6 +21,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
+/**
+ * Pantalla que muestra el progreso de logros del usuario autenticado.
+ *
+ * Agrupa los logros por categoría, muestra el avance global y permite volver
+ * a la pantalla anterior mediante el controlador de navegación.
+ *
+ * @param navController Controlador usado para gestionar la navegación.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AchievementsScreen(navController: NavController) {
@@ -118,6 +126,14 @@ fun AchievementsScreen(navController: NavController) {
     }
 }
 
+/**
+ * Tarjeta visual de un logro individual.
+ *
+ * Refleja si el logro está bloqueado o desbloqueado y expone una descripción
+ * accesible para lectores de pantalla.
+ *
+ * @param achievement Logro que se debe representar.
+ */
 @Composable
 private fun AchievementCard(achievement: Achievement) {
     val containerColor = if (achievement.unlocked)

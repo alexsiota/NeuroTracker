@@ -126,4 +126,70 @@ class EegViewModelTest {
     fun viewMode_hasExactlyTwoValues() {
         assertEquals(2, EegViewModel.ViewMode.values().size)
     }
+
+    /**
+     * Después de avanzar el dispatcher para que el stream emita la primera muestra,
+     * los cuatro buffers de señal deben contener al menos un elemento.
+     * Ejercita [EegViewModel.updateBandPower] internamente.
+     */
+    @Test
+    fun afterFirstEmit_allBuffers_areNotEmpty() {
+        testDispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.alphaBuffer.value.isNotEmpty())
+        assertTrue(viewModel.betaBuffer.value.isNotEmpty())
+        assertTrue(viewModel.gammaBuffer.value.isNotEmpty())
+        assertTrue(viewModel.thetaBuffer.value.isNotEmpty())
+    }
+
+    /**
+     * Tras la primera muestra, la suma de las potencias de banda debe ser > 0.
+     * Ejercita el cálculo de potencia relativa en [EegViewModel.updateBandPower].
+     */
+    @Test
+    fun afterFirstEmit_totalBandPower_isPositive() {
+        testDispatcher.scheduler.runCurrent()
+        val total = viewModel.alphaPower.value + viewModel.betaPower.value +
+                viewModel.gammaPower.value + viewModel.thetaPower.value
+        assertTrue(total > 0f)
+    }
+
+    /**
+     * Tras la primera muestra, el estado cognitivo debe ser uno de los cuatro
+     * valores válidos definidos en [EegViewModel.updateCognitiveState].
+     */
+    @Test
+    fun afterFirstEmit_cognitiveState_isOneOfValidStates() {
+        testDispatcher.scheduler.runCurrent()
+        val validStates = setOf(
+            "Relajado · Atención pasiva",
+            "Concentrado · Alerta",
+            "Procesamiento cognitivo alto",
+            "Memoria activa · Creativo"
+        )
+        assertTrue(
+            "cognitiveState '${viewModel.cognitiveState.value}' no es un estado válido",
+            viewModel.cognitiveState.value in validStates
+        )
+    }
+
+    /**
+     * Tras detener el stream, avanzar el tiempo virtual no añade muestras nuevas
+     * a los buffers porque el Job ha sido cancelado.
+     */
+    @Test
+    fun afterStop_bufferSize_doesNotGrowWithTimeAdvancement() {
+        testDispatcher.scheduler.runCurrent()
+        val sizeAfterFirstEmit = viewModel.alphaBuffer.value.size
+        viewModel.stopStream()
+        testDispatcher.scheduler.advanceTimeBy(200L)
+        assertEquals(sizeAfterFirstEmit, viewModel.alphaBuffer.value.size)
+    }
+
+    /**
+     * El estado cognitivo inicial antes de que el stream emita debe ser "Iniciando…".
+     */
+    @Test
+    fun initialCognitiveState_isInitiating() {
+        assertEquals("Iniciando...", viewModel.cognitiveState.value)
+    }
 }

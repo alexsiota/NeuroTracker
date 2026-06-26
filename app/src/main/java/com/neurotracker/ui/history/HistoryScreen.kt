@@ -3,7 +3,7 @@ package com.neurotracker.ui.history
 /**
  * Pantalla de historial de tests.
  *
- * ─── Fix borrado ──────────────────────────────────────────────────────────────
+ * ─── Nota borrado ──────────────────────────────────────────────────────────────
  *
  * Problema 1: el swipe mostraba el fondo rojo en todos los ítems a la vez.
  * Causa: el `rememberSwipeToDismissBoxState` se instanciaba fuera del `forEach`,
@@ -19,7 +19,7 @@ package com.neurotracker.ui.history
  * `false` para evitar que el ítem desaparezca visualmente (el ViewModel
  * actualiza la lista y el ítem desaparece por recomposición).
  *
- * ─── Fix EEG "ver más" ───────────────────────────────────────────────────────
+ * ─── Nota EEG "ver más" ───────────────────────────────────────────────────────
  *
  * Se añade un botón "Ver todos" que alterna entre mostrar los últimos 5
  * y mostrar todos los tests con datos EEG.
@@ -74,7 +74,19 @@ private val BetaColor  = Color(0xFF1565C0)
 private val GammaColor = Color(0xFFE65100)
 private val ThetaColor = Color(0xFF6A1B9A)
 
+/**
+ * Devuelve el indicador textual asociado al nivel de precisión.
+ *
+ * @param pct Porcentaje de precisión.
+ * @return Indicador visual usado en los resúmenes.
+ */
 private fun precisionEmoji(pct: Int) = when { pct >= 80 -> "✅"; pct >= 50 -> "⚠️"; else -> "❌" }
+/**
+ * Obtiene el color semántico correspondiente a una precisión.
+ *
+ * @param pct Porcentaje de precisión.
+ * @return Color para representar rendimiento alto, medio o bajo.
+ */
 private fun precisionColor(pct: Int) = when { pct >= 80 -> Color(0xFF2E7D32); pct >= 50 -> Color(0xFFE65100); else -> Color(0xFFC62828) }
 
 /**
@@ -91,7 +103,7 @@ fun HistoryScreen(navController: NavController) {
     var expanded       by remember { mutableStateOf(false) }
     var showChart      by remember { mutableStateOf(false) }
     var testToDelete   by remember { mutableStateOf<RecentTestUi?>(null) }
-    // FIX: flag para mostrar todos los tests EEG o solo los últimos 5
+    // Nota: flag para mostrar todos los tests EEG o solo los últimos 5
     var showAllEeg     by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -173,7 +185,7 @@ fun HistoryScreen(navController: NavController) {
                         }
                     } else {
                         viewModel.tests.value.forEach { test ->
-                            // FIX: key(test.id) garantiza estado de swipe aislado por ítem
+                            // Nota: key(test.id) garantiza estado de swipe aislado por ítem
                             key(test.id) {
                                 SwipeToDeleteRow(test = test, onDelete = { testToDelete = test })
                             }
@@ -269,7 +281,7 @@ fun HistoryScreen(navController: NavController) {
                             Spacer(Modifier.height(20.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                 Text("Actividad cerebral EEG", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                // FIX: botón para alternar entre últimos 5 y todos
+                                // Nota: botón para alternar entre últimos 5 y todos
                                 if (testsWithEeg.size > 5) {
                                     TextButton(onClick = { showAllEeg = !showAllEeg }) {
                                         Text(if (showAllEeg) "Ver menos" else "Ver todos (${testsWithEeg.size})", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
@@ -288,7 +300,7 @@ fun HistoryScreen(navController: NavController) {
                             }
                             Spacer(Modifier.height(8.dp))
 
-                            // FIX: mostrar últimos 5 o todos según showAllEeg
+                            // Nota: mostrar últimos 5 o todos según showAllEeg
                             val eegToShow = if (showAllEeg) testsWithEeg else testsWithEeg.takeLast(5)
                             eegToShow.forEach { test ->
                                 Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
@@ -347,11 +359,11 @@ fun HistoryScreen(navController: NavController) {
 /**
  * Fila deslizable para eliminar un test.
  *
- * FIX: el estado de swipe es local a este composable y está aislado
+ * Nota: el estado de swipe es local a este composable y está aislado
  * por `key(test.id)` en el llamador. Esto evita que todos los ítems
  * muestren el fondo rojo a la vez.
  *
- * FIX: `confirmValueChange` ahora llama `onDelete()` correctamente.
+ * Nota: `confirmValueChange` ahora llama `onDelete()` correctamente.
  * Retorna `false` para que el ítem no desaparezca por animación —
  * desaparece por recomposición cuando el ViewModel actualiza la lista.
  *
@@ -364,9 +376,9 @@ private fun SwipeToDeleteRow(test: RecentTestUi, onDelete: () -> Unit) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
-                onDelete()  // FIX: llamar onDelete correctamente
+                onDelete()  // Nota: llamar onDelete correctamente
             }
-            false           // FIX: no animar desaparición (el ViewModel lo hace)
+            false           // Nota: no animar desaparición (el ViewModel lo hace)
         }
     )
     SwipeToDismissBox(
@@ -394,6 +406,11 @@ private fun SwipeToDeleteRow(test: RecentTestUi, onDelete: () -> Unit) {
     ) { TestRow(test) }
 }
 
+/**
+ * Fila que resume un resultado de test dentro del historial.
+ *
+ * @param test Resultado ya adaptado para presentación.
+ */
 @Composable
 private fun TestRow(test: RecentTestUi) {
     val emoji = precisionEmoji(test.precisionPct)
@@ -430,6 +447,14 @@ private fun TestRow(test: RecentTestUi) {
     }
 }
 
+/**
+ * Gráfico de barras para comparar la precisión de varios tests.
+ *
+ * @param tests Resultados que se dibujan en orden temporal.
+ * @param gridColor Color de las líneas de referencia.
+ * @param labelColor Color de las etiquetas internas.
+ * @param modifier Modificador aplicado al canvas.
+ */
 @Composable
 private fun ImprovedBarChart(tests: List<RecentTestUi>, gridColor: Color, labelColor: Color, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -451,6 +476,14 @@ private fun ImprovedBarChart(tests: List<RecentTestUi>, gridColor: Color, labelC
     }
 }
 
+/**
+ * Gráfico de línea que muestra la evolución de precisión.
+ *
+ * @param tests Resultados ordenados temporalmente.
+ * @param lineColor Color de la línea principal.
+ * @param gridColor Color de la cuadrícula de referencia.
+ * @param modifier Modificador aplicado al canvas.
+ */
 @Composable
 private fun ImprovedLineChart(tests: List<RecentTestUi>, lineColor: Color, gridColor: Color, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -466,6 +499,14 @@ private fun ImprovedLineChart(tests: List<RecentTestUi>, lineColor: Color, gridC
     }
 }
 
+/**
+ * Barra compacta para representar la potencia normalizada de una banda EEG.
+ *
+ * @param label Etiqueta corta de la banda.
+ * @param value Valor EEG original entre -1 y 1.
+ * @param color Color asociado a la banda.
+ * @param modifier Modificador aplicado al componente.
+ */
 @Composable
 private fun EegBandBar(label: String, value: Float, color: Color, modifier: Modifier = Modifier) {
     val normalized = ((value+1f)/2f).coerceIn(0f,1f)
@@ -478,6 +519,12 @@ private fun EegBandBar(label: String, value: Float, color: Color, modifier: Modi
     }
 }
 
+/**
+ * Elemento de leyenda para identificar una banda EEG.
+ *
+ * @param label Nombre de la banda.
+ * @param color Color usado en barras y leyendas.
+ */
 @Composable
 private fun EegLegendItem(label: String, color: Color) {
     Row(verticalAlignment=Alignment.CenterVertically) {
@@ -486,6 +533,15 @@ private fun EegLegendItem(label: String, color: Color) {
     }
 }
 
+/**
+ * Tarjeta de resumen para métricas agregadas del historial.
+ *
+ * @param label Texto descriptivo de la métrica.
+ * @param value Valor principal mostrado.
+ * @param color Color semántico del valor.
+ * @param modifier Modificador aplicado a la tarjeta.
+ * @param accessibilityDesc Descripción accesible completa.
+ */
 @Composable
 private fun StatSummaryCard(label: String, value: String, color: Color, modifier: Modifier=Modifier, accessibilityDesc: String="$label: $value") {
     Card(modifier=modifier.semantics { contentDescription=accessibilityDesc }, shape=RoundedCornerShape(12.dp), elevation=CardDefaults.cardElevation(2.dp)) {

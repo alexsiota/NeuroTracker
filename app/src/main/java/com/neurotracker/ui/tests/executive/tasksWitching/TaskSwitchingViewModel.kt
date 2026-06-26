@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel del Test de Cambio de Tarea (Task Switching).
  *
- * ─── Fix daltonismo — colores del estímulo ───────────────────────────────────
+ * ─── Nota daltonismo — colores del estímulo ───────────────────────────────────
  *
  * Problema original: los colores usados eran saturados directos de Compose
  * (Color.Red, Color.Blue, Color.Green) que no tienen contraste suficiente
@@ -36,6 +36,9 @@ import kotlinx.coroutines.launch
  */
 class TaskSwitchingViewModel(application: Application) : AndroidViewModel(application) {
 
+    /**
+     * Estados posibles del flujo del test.
+     */
     enum class TestState { IDLE, RUNNING, FINISHED }
 
     /**
@@ -66,7 +69,7 @@ class TaskSwitchingViewModel(application: Application) : AndroidViewModel(applic
     /**
      * Paleta de colores accesibles para daltónicos.
      *
-     * FIX: sustituye Color.Red/Green/Blue/Yellow (saturados) por versiones
+     * Nota: sustituye Color.Red/Green/Blue/Yellow (saturados) por versiones
      * oscuras de alto contraste. Naranja sustituye amarillo que no tiene
      * contraste suficiente sobre fondos claros.
      */

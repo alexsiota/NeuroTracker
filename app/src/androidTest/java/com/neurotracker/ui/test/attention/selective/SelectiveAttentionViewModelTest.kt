@@ -1,4 +1,4 @@
-package com.neurotracker.attention.selective
+package com.neurotracker.ui.test.attention.selective
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

@@ -28,7 +28,7 @@ import com.neurotracker.ui.navigation.Routes
 /**
  * Pantalla de recuperación de contraseña — Paso 3: Nueva contraseña.
  *
- * ─── Fix: recibe viewModel como parámetro ────────────────────────────────────
+ * ─── Nota: recibe viewModel como parámetro ────────────────────────────────────
  *
  * Problema original: creaba su propio ViewModel con `viewModel(factory)`,
  * obteniendo una instancia distinta a la de ForgotPasswordScreen.
@@ -201,6 +201,11 @@ fun ResetPasswordScreen(
     }
 }
 
+/**
+ * Colores compartidos por los campos de contraseña del flujo.
+ *
+ * @return Configuración visual para [OutlinedTextField].
+ */
 @Composable
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor   = Color(0xFF6C63FF),

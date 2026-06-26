@@ -32,15 +32,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.neurotracker.R
 import com.neurotracker.data.profile.ProfilePhotoManager
-import com.neurotracker.data.session.SessionEvents
+import com.neurotracker.ui.profile.buildProfileImageRequest
 import com.neurotracker.data.session.SessionManager
 import com.neurotracker.ui.navigation.Routes
 import com.neurotracker.viewmodel.BadgeUi
 import com.neurotracker.viewmodel.RecentTestUi
 
+/**
+ * Devuelve el indicador textual asociado al porcentaje de precisión.
+ *
+ * @param pct Porcentaje de precisión.
+ * @return Indicador visual usado en tarjetas y resúmenes.
+ */
 private fun precisionEmoji(pct: Int) = when { pct >= 80 -> "✅"; pct >= 50 -> "⚠️"; else -> "❌" }
 
 /**
@@ -52,12 +57,13 @@ private fun precisionEmoji(pct: Int) = when { pct >= 80 -> "✅"; pct >= 50 -> "
  * La recarga de datos tras un cambio de email se gestiona de forma
  * instantánea en [MainViewModel] a través de [SessionEvents.emailChanged].
  *
- * La foto de perfil del TopBar se actualiza al instante escuchando
- * [SessionEvents.photoChanged], que [com.neurotracker.ui.profile.ProfileViewModel]
- * emite cada vez que el usuario guarda o elimina su foto. Para forzar que
- * Coil descarte la caché y lea el archivo actualizado del disco, se usa
- * un [ImageRequest] con [ImageRequest.Builder.memoryCacheKey] único basado
- * en un contador que se incrementa con cada evento recibido.
+ * La foto de perfil del TopBar se actualiza al instante porque [MainViewModel]
+ * escucha [com.neurotracker.data.session.SessionEvents.photoChanged] e incrementa
+ * [MainViewModel.photoVersion]. MainScreen usa ese valor como clave de
+ * [LaunchedEffect], lo que provoca que la carga de [photoUri] se relance y que
+ * [com.neurotracker.ui.profile.buildProfileImageRequest] recalcule la cache key
+ * a partir de los metadatos reales del archivo ([java.io.File.lastModified] y
+ * [java.io.File.length]), invalidando la caché de Coil de forma automática.
  *
  * @param navController Controlador de navegación para acceder a otras pantallas.
  */
@@ -73,25 +79,10 @@ fun MainScreen(navController: NavController) {
 
     val sessionManager = remember { SessionManager(context) }
     val photoUri       = remember { mutableStateOf<Uri?>(null) }
-    val photoCacheKey  = remember { mutableStateOf(0) }
 
-    // Carga inicial de la foto
-    LaunchedEffect(Unit) {
+    LaunchedEffect(viewModel.photoVersion.value) {
         val email = sessionManager.getUserEmail()
-        if (!email.isNullOrBlank()) {
-            photoUri.value = ProfilePhotoManager.getPhotoUri(context, email)
-        }
-    }
-
-    // Actualiza la foto al instante cuando ProfileViewModel emite notifyPhotoChanged()
-    LaunchedEffect(Unit) {
-        SessionEvents.photoChanged.collect {
-            val email = sessionManager.getUserEmail()
-            if (!email.isNullOrBlank()) {
-                photoUri.value     = ProfilePhotoManager.getPhotoUri(context, email)
-                photoCacheKey.value++
-            }
-        }
+        photoUri.value = if (!email.isNullOrBlank()) ProfilePhotoManager.getPhotoUri(context, email) else null
     }
 
     var selectedBadge by remember { mutableStateOf<BadgeUi?>(null) }
@@ -126,11 +117,7 @@ fun MainScreen(navController: NavController) {
                     ) {
                         if (photoUri.value != null) {
                             AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(photoUri.value)
-                                    .memoryCacheKey("profile_${photoCacheKey.value}")
-                                    .diskCacheKey("profile_${photoCacheKey.value}")
-                                    .build(),
+                                model              = buildProfileImageRequest(context, photoUri.value, viewModel.userEmail.value),
                                 contentDescription = "Foto de perfil",
                                 contentScale       = ContentScale.Crop,
                                 modifier           = Modifier.fillMaxSize().clip(CircleShape)

@@ -1,4 +1,4 @@
-package com.neurotracker.executive.responseInhibition
+package com.neurotracker.ui.test.executive.responseInhibition
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

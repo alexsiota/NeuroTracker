@@ -1,4 +1,4 @@
-package com.neurotracker.executive.planning
+package com.neurotracker.ui.test.executive.planning
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -130,22 +130,29 @@ class PlanningViewModelTest {
     }
 
     /**
-     * Verifica que [efficiencyPercent] es 100% cuando se resuelve
-     * en exactamente 7 movimientos (el óptimo para 3 discos).
+     * Verifica que [efficiencyPercent] es 100% cuando se realizan
+     * exactamente 7 movimientos válidos (el óptimo para 3 discos).
+     *
+     * Secuencia válida de 7 movimientos (A=[1,2,3], disco superior=3):
+     *  1. A→C: disco 3.  A=[1,2],   B=[],    C=[3]
+     *  2. A→B: disco 2.  A=[1],     B=[2],   C=[3]
+     *  3. A→B: disco 1.  A=[],      B=[2,1], C=[3]
+     *  4. C→A: disco 3.  A=[3],     B=[2,1], C=[]
+     *  5. B→C: disco 1.  A=[3],     B=[2],   C=[1]
+     *  6. B→A: disco 2.  A=[3,2],   B=[],    C=[1]
+     *  7. C→A: disco 1.  A=[3,2,1], B=[],    C=[]  ← A no vacía: no dispara victoria
      */
     @Test
     fun efficiencyPercent_withOptimalMoves_returns100() {
         viewModel.startTest()
-        // Solución óptima de 3 discos en 7 movimientos
-        // Estado inicial A=[1,2,3], B=[], C=[]
-        // El disco superior de A es 3 (último elemento)
         viewModel.onTowerTapped(0); viewModel.onTowerTapped(2) // A→C: disco 3
         viewModel.onTowerTapped(0); viewModel.onTowerTapped(1) // A→B: disco 2
-        viewModel.onTowerTapped(2); viewModel.onTowerTapped(1) // C→B: disco 3
-        viewModel.onTowerTapped(0); viewModel.onTowerTapped(2) // A→C: disco 1
-        viewModel.onTowerTapped(1); viewModel.onTowerTapped(0) // B→A: disco 3
-        viewModel.onTowerTapped(1); viewModel.onTowerTapped(2) // B→C: disco 2
-        viewModel.onTowerTapped(0); viewModel.onTowerTapped(2) // A→C: disco 3
+        viewModel.onTowerTapped(0); viewModel.onTowerTapped(1) // A→B: disco 1
+        viewModel.onTowerTapped(2); viewModel.onTowerTapped(0) // C→A: disco 3
+        viewModel.onTowerTapped(1); viewModel.onTowerTapped(2) // B→C: disco 1
+        viewModel.onTowerTapped(1); viewModel.onTowerTapped(0) // B→A: disco 2
+        viewModel.onTowerTapped(2); viewModel.onTowerTapped(0) // C→A: disco 1
+        assertEquals(7, viewModel.moveCount.value)
         assertEquals(100, viewModel.efficiencyPercent())
     }
 

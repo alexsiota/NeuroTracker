@@ -3,7 +3,7 @@ package com.neurotracker.ui.tests.executive.tasksWitching
 /**
  * Pantalla del Test de Cambio de Tarea (Task Switching).
  *
- * ─── Fix daltonismo ───────────────────────────────────────────────────────────
+ * ─── Nota daltonismo ───────────────────────────────────────────────────────────
  *
  * Problema original: el estímulo era solo una figura de color sin etiqueta.
  * Para la regla COLOR, el usuario debía identificar el color visualmente.
@@ -112,7 +112,7 @@ fun TaskSwitchingScreen(navController: NavController) {
                             val shape = if (stimulus.shape == "Círculo") CircleShape
                                         else RoundedCornerShape(12.dp)
 
-                            // Figura con nombre del color debajo (FIX daltonismo)
+                            // Figura con nombre del color debajo (Nota daltonismo)
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.semantics {
@@ -126,7 +126,7 @@ fun TaskSwitchingScreen(navController: NavController) {
                                         .background(stimulus.color, shape)
                                 )
                                 Spacer(Modifier.height(8.dp))
-                                // FIX: nombre del color en texto para daltónicos
+                                // Nota: nombre del color en texto para daltónicos
                                 Text(
                                     stimulus.colorName,
                                     color      = stimulus.color,

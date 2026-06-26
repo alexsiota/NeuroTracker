@@ -23,6 +23,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.neurotracker.ui.tests.components.*
 
+/**
+ * Pantalla del Test de Doble Tarea.
+ *
+ * Combina una tarea N-Back y una tarea de reacción durante una misma sesión,
+ * mostrando instrucciones, ejecución en tiempo real y resultados finales.
+ *
+ * @param navController Controlador usado para volver o finalizar la prueba.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DualTaskScreen(navController: NavController) {

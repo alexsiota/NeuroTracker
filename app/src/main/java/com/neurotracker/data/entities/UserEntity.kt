@@ -4,20 +4,20 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Entidad que representa un usuario en la base de datos Room.
- *
- * @param id Identificador único autogenerado.
- * @param name Nombre completo del usuario.
- * @param birthDate Fecha de nacimiento en timestamp (milisegundos desde epoch).
- * @param email Correo electrónico del usuario (debe ser único).
- * @param passwordHash Hash SHA-256 de la contraseña.
- * @param createdAt Marca de tiempo de creación de la cuenta.
- */
 @Entity(
     tableName = "users",
     indices = [Index(value = ["email"], unique = true)]
 )
+/**
+ * Modelo persistente del usuario para Room.
+ *
+ * @param id Identificador autogenerado por Room.
+ * @param name Nombre visible del usuario.
+ * @param birthDate Fecha de nacimiento almacenada como timestamp.
+ * @param email Correo electrónico único del usuario.
+ * @param passwordHash Contraseña almacenada como hash SHA-256.
+ * @param createdAt Fecha de creación de la cuenta en milisegundos.
+ */
 data class UserEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,

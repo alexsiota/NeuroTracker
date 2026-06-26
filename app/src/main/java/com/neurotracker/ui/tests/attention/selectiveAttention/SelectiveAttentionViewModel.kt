@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel del Test de Atención Selectiva.
  *
- * ─── Fix: avance inmediato al pulsar ─────────────────────────────────────────
+ * ─── Nota: avance inmediato al pulsar ─────────────────────────────────────────
  *
  * Problema original: la corrutina [runRounds] siempre esperaba los
  * [ROUND_DURATION_MS] completos aunque el usuario ya hubiera respondido.
@@ -36,6 +36,9 @@ import kotlinx.coroutines.launch
  */
 class SelectiveAttentionViewModel(application: Application) : AndroidViewModel(application) {
 
+    /**
+     * Estados posibles del flujo del test.
+     */
     enum class TestState { IDLE, RUNNING, FINISHED }
 
     /**
@@ -94,7 +97,7 @@ class SelectiveAttentionViewModel(application: Application) : AndroidViewModel(a
     /**
      * Registra la pulsación del usuario sobre un estímulo.
      *
-     * FIX: al final activa [advanceNow] = true para que la corrutina
+     * Nota: al final activa [advanceNow] = true para que la corrutina
      * avance inmediatamente a la siguiente ronda sin esperar el timeout.
      *
      * @param stimulus Estímulo pulsado por el usuario.
@@ -108,7 +111,7 @@ class SelectiveAttentionViewModel(application: Application) : AndroidViewModel(a
         } else {
             errors.value++
         }
-        advanceNow = true // ← FIX: avance inmediato
+        advanceNow = true // ← Nota: avance inmediato
     }
 
     /**
@@ -138,7 +141,7 @@ class SelectiveAttentionViewModel(application: Application) : AndroidViewModel(a
     /**
      * Ejecuta las [TOTAL_ROUNDS] rondas del test secuencialmente.
      *
-     * FIX: en lugar de `delay(ROUND_DURATION_MS)` fijo, usa un bucle de
+     * Nota: en lugar de `delay(ROUND_DURATION_MS)` fijo, usa un bucle de
      * polling de 50ms que sale cuando [advanceNow] = true (usuario respondió)
      * o cuando se agota el tiempo máximo (omisión).
      */
@@ -172,6 +175,9 @@ class SelectiveAttentionViewModel(application: Application) : AndroidViewModel(a
         finishTest()
     }
 
+    /**
+     * Finaliza el test, calcula el tiempo medio y prepara la pantalla de resultados.
+     */
     private fun finishTest() {
         avgReactionMs.value = if (reactionTimes.isNotEmpty())
             reactionTimes.average().toLong() else 0L
@@ -179,6 +185,9 @@ class SelectiveAttentionViewModel(application: Application) : AndroidViewModel(a
         saveResult()
     }
 
+    /**
+     * Guarda el resultado del test asociado al usuario actual.
+     */
     private fun saveResult() {
         val avg = avgReactionMs.value.takeIf { it > 0 } ?: return
         viewModelScope.launch {

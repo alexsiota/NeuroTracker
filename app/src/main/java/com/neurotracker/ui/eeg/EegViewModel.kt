@@ -148,6 +148,12 @@ class EegViewModel(application: Application) : AndroidViewModel(application) {
      * de la actividad de cada banda en tiempo real.
      */
     private fun updateBandPower() {
+        /**
+         * Calcula la potencia reciente de un buffer de señal EEG.
+         *
+         * @param buf Muestras recientes de una banda.
+         * @return Potencia estimada en porcentaje.
+         */
         fun power(buf: List<Float>) =
             if (buf.isEmpty()) 0f
             else buf.takeLast(20).map { kotlin.math.abs(it) }.average().toFloat() * 100f

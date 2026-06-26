@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -15,6 +16,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -146,5 +148,105 @@ class AchievementsViewModelTest {
         val varietyAll = viewModel.achievements.value.find { it.id == "variety_all" }
         assertNotNull("No se encontró el logro 'variety_all'", varietyAll)
         assertEquals("Variedad", varietyAll!!.category)
+    }
+
+    @Test
+    fun initialState_isLoadingIsTrue() {
+        assertTrue(viewModel.isLoading.value)
+    }
+
+    @Test
+    fun afterLoading_withNoSession_allAchievementsAreNotUnlocked() = runTest {
+        advanceUntilIdle()
+        assertTrue(viewModel.achievements.value.all { !it.unlocked })
+    }
+
+    @Test
+    fun achievements_containsReactionFastAchievement() = runTest {
+        advanceUntilIdle()
+        assertNotNull(viewModel.achievements.value.find { it.id == "reaction_fast" })
+    }
+
+    @Test
+    fun achievements_containsNBackAceAchievement() = runTest {
+        advanceUntilIdle()
+        assertNotNull(viewModel.achievements.value.find { it.id == "nback_ace" })
+    }
+
+    @Test
+    fun achievements_containsPrecision70Achievement() = runTest {
+        advanceUntilIdle()
+        assertNotNull(viewModel.achievements.value.find { it.id == "precision_70" })
+    }
+
+    @Test
+    fun achievements_containsGlobalAceAchievement() = runTest {
+        advanceUntilIdle()
+        val a = viewModel.achievements.value.find { it.id == "global_ace" }
+        assertNotNull(a)
+        assertEquals("Tests compuestos", a!!.category)
+    }
+
+    @Test
+    fun achievements_containsDualTaskFirstAchievement() = runTest {
+        advanceUntilIdle()
+        assertNotNull(viewModel.achievements.value.find { it.id == "dual_task_first" })
+    }
+
+    @Test
+    fun achievements_executiveFunctionsCategory_hasAchievements() = runTest {
+        advanceUntilIdle()
+        val executive = viewModel.achievements.value.filter { it.category == "Funciones ejecutivas" }
+        assertTrue(executive.size >= 2)
+    }
+
+    @Test
+    fun achievement_dataClass_storesAllFields() {
+        val a = Achievement(
+            id            = "test_id",
+            emoji         = "🏆",
+            title         = "Título test",
+            description   = "Descripción test",
+            category      = "Categoría",
+            unlocked      = true,
+            unlockedColor = Color(0xFF1565C0)
+        )
+        assertEquals("test_id", a.id)
+        assertEquals("🏆", a.emoji)
+        assertEquals("Título test", a.title)
+        assertEquals("Descripción test", a.description)
+        assertEquals("Categoría", a.category)
+        assertTrue(a.unlocked)
+        assertEquals(Color(0xFF1565C0), a.unlockedColor)
+    }
+
+    @Test
+    fun achievement_dataClass_defaultColor_isGreen() {
+        val a = Achievement("id", "🚀", "T", "D", "Cat", false)
+        assertEquals(Color(0xFF2E7D32), a.unlockedColor)
+    }
+
+    @Test
+    fun achievement_dataClass_equality() {
+        val a = Achievement("id1", "⭐", "T", "D", "Cat", true)
+        val b = Achievement("id1", "⭐", "T", "D", "Cat", true)
+        assertEquals(a, b)
+    }
+
+    @Test
+    fun achievement_dataClass_copy_changesUnlocked() {
+        val locked   = Achievement("id1", "🔥", "T", "D", "Cat", false)
+        val unlocked = locked.copy(unlocked = true)
+        assertFalse(locked.unlocked)
+        assertTrue(unlocked.unlocked)
+        assertEquals(locked.id, unlocked.id)
+    }
+
+    @Test
+    fun achievements_allHaveNonNullUnlockedColor() = runTest {
+        advanceUntilIdle()
+        viewModel.achievements.value.forEach { a ->
+            assertNotNull("Color null en ${a.id}", a.unlockedColor)
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.neurotracker.coordination.spatialperception
+package com.neurotracker.ui.test.coordination.spatialperception
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

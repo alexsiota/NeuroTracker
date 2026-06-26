@@ -1,4 +1,4 @@
-package com.neurotracker.memory.digitspan
+package com.neurotracker.ui.test.memory.digitspan
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -120,5 +120,94 @@ class DigitSpanViewModelTest {
         viewModel.startTest()
         advanceTimeBy(1000)
         assertTrue(viewModel.precisionPercent() in 0..100)
+    }
+
+    @Test
+    fun afterShowingPhase_stateIsInput() = runTest {
+        viewModel.startTest()
+        // delay(600) + span3 × (delay(800) + delay(300)) = 3900ms; use 4000 to be safe
+        advanceTimeBy(4000)
+        assertEquals(DigitSpanViewModel.TestState.INPUT, viewModel.testState.value)
+    }
+
+    @Test
+    fun onDigitPressed_inInputState_addsDigitToUserInput() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        assertEquals(DigitSpanViewModel.TestState.INPUT, viewModel.testState.value)
+        val before = viewModel.userInput.value.size
+        viewModel.onDigitPressed(7)
+        assertEquals(before + 1, viewModel.userInput.value.size)
+    }
+
+    @Test
+    fun onBackspace_whenInputIsEmpty_doesNotCrash() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        assertEquals(DigitSpanViewModel.TestState.INPUT, viewModel.testState.value)
+        assertTrue(viewModel.userInput.value.isEmpty())
+        viewModel.onBackspace() // must not throw
+        assertTrue(viewModel.userInput.value.isEmpty())
+    }
+
+    @Test
+    fun validateInput_withCorrectSequence_setsFeedbackCorrectTrue() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        assertEquals(DigitSpanViewModel.TestState.INPUT, viewModel.testState.value)
+        val seq = viewModel.sequence.value
+        seq.forEach { viewModel.onDigitPressed(it) }
+        assertEquals(DigitSpanViewModel.TestState.FEEDBACK, viewModel.testState.value)
+        assertEquals(true, viewModel.feedbackCorrect.value)
+    }
+
+    @Test
+    fun validateInput_withWrongSequence_setsFeedbackCorrectFalse() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        assertEquals(DigitSpanViewModel.TestState.INPUT, viewModel.testState.value)
+        val seq = viewModel.sequence.value
+        seq.dropLast(1).forEach { viewModel.onDigitPressed(it) }
+        val wrongLast = (seq.last() + 1) % 10
+        viewModel.onDigitPressed(if (wrongLast == seq.last()) (wrongLast + 1) % 10 else wrongLast)
+        assertEquals(DigitSpanViewModel.TestState.FEEDBACK, viewModel.testState.value)
+        assertEquals(false, viewModel.feedbackCorrect.value)
+    }
+
+    @Test
+    fun afterCorrectInput_andFeedbackDelay_stateIsShowingWithLargerSpan() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        val seq = viewModel.sequence.value
+        seq.forEach { viewModel.onDigitPressed(it) }
+        advanceTimeBy(1100) // feedback delay(1000) + margin
+        assertEquals(DigitSpanViewModel.TestState.SHOWING, viewModel.testState.value)
+        assertEquals(seq.size + 1, viewModel.currentSpan.value)
+    }
+
+    @Test
+    fun afterWrongInput_andFeedbackDelay_stateIsFinished() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        val seq = viewModel.sequence.value
+        seq.dropLast(1).forEach { viewModel.onDigitPressed(it) }
+        val wrongLast = (seq.last() + 1) % 10
+        viewModel.onDigitPressed(if (wrongLast == seq.last()) (wrongLast + 1) % 10 else wrongLast)
+        advanceTimeBy(1100)
+        assertEquals(DigitSpanViewModel.TestState.FINISHED, viewModel.testState.value)
+    }
+
+    @Test
+    fun precisionPercent_afterOneCorrectSpan_isGreaterThanZero() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(4000)
+        val seq = viewModel.sequence.value
+        seq.forEach { viewModel.onDigitPressed(it) }
+        advanceTimeBy(1100) // now maxSpan = 3
+        // Enter wrong sequence in the next round to finish
+        val seq2 = viewModel.sequence.value
+        seq2.dropLast(1).forEach { viewModel.onDigitPressed(it) }
+        viewModel.onDigitPressed((seq2.last() + 1) % 10)
+        assertTrue(viewModel.precisionPercent() > 0)
     }
 }

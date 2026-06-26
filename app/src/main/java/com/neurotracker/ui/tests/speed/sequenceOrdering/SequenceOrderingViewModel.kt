@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel del Test de Ordenación de Secuencias.
  *
- * ─── Fix: cambio de ronda automático por timeout ──────────────────────────────
+ * ─── Nota: cambio de ronda automático por timeout ──────────────────────────────
  *
  * Problema original: el ViewModel solo avanzaba de ronda cuando el usuario
  * completaba la secuencia de 5 números. Si no la completaba (dejaba alguno
@@ -33,6 +33,9 @@ import kotlinx.coroutines.launch
  */
 class SequenceOrderingViewModel(application: Application) : AndroidViewModel(application) {
 
+    /**
+     * Estados posibles del flujo del test.
+     */
     enum class TestState { IDLE, RUNNING, FINISHED }
 
     private val db             = NeuroTrackerDatabase.getDatabase(application)

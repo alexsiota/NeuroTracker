@@ -31,7 +31,7 @@ import com.neurotracker.ui.navigation.Routes
 /**
  * Pantalla de recuperación de contraseña — Paso 1: Introducir email.
  *
- * ─── Fix: navegación directa en onSuccess ────────────────────────────────────
+ * ─── Nota: navegación directa en onSuccess ────────────────────────────────────
  *
  * Problema original: la navegación se hacía con un LaunchedEffect observando
  * [codeSent]. Esto creaba una carrera entre la recomposición que actualizaba
@@ -104,7 +104,7 @@ fun ForgotPasswordScreen(
             // Botón enviar
             Button(
                 onClick  = {
-                    // FIX: navegación en onSuccess, no en LaunchedEffect
+                    // Nota: navegación en onSuccess, no en LaunchedEffect
                     viewModel.sendCode(onSuccess = {
                         navController.navigate(Routes.VERIFY_CODE)
                     })
@@ -144,6 +144,11 @@ fun ForgotPasswordScreen(
     }
 }
 
+/**
+ * Colores compartidos por los campos del flujo de recuperación.
+ *
+ * @return Configuración visual para [OutlinedTextField].
+ */
 @Composable
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor   = Color(0xFF6C63FF),

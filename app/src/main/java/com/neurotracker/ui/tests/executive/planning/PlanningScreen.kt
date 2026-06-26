@@ -54,6 +54,14 @@ import androidx.navigation.NavController
 import com.neurotracker.ui.tests.components.*
 import com.neurotracker.ui.tests.components.TestResultActions
 
+/**
+ * Pantalla del Test de Planificación basado en Torres de Hanoi.
+ *
+ * Presenta las instrucciones, permite mover discos entre torres y muestra
+ * el resultado final con métricas de eficiencia.
+ *
+ * @param navController Controlador usado para volver o finalizar la prueba.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanningScreen(navController: NavController) {

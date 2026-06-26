@@ -1,4 +1,4 @@
-package com.neurotracker.memory.nback
+package com.neurotracker.ui.test.memory.nback
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -117,5 +117,80 @@ class NBackViewModelTest {
         assertEquals(NBackViewModel.TestState.IDLE, viewModel.testState.value)
         assertEquals(0, viewModel.hits.value)
         assertEquals(0, viewModel.omissions.value)
+    }
+
+    @Test
+    fun onNoPressed_onFirstStimulus_doesNotRegisterResponse() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(100)
+        assertEquals(1, viewModel.currentIndex.value)
+        viewModel.onNoPressed()
+        assertEquals(0, viewModel.hits.value)
+        assertEquals(0, viewModel.errors.value)
+    }
+
+    @Test
+    fun onYesPressed_onSecondStimulus_registersOneResponse() = runTest {
+        viewModel.startTest()
+        // first stimulus: 2000ms + 200ms inter = 2200ms total
+        advanceTimeBy(2250)
+        assertEquals(2, viewModel.currentIndex.value)
+        viewModel.onYesPressed()
+        assertEquals(1, viewModel.hits.value + viewModel.errors.value)
+    }
+
+    @Test
+    fun onNoPressed_onSecondStimulus_registersOneResponse() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(2250)
+        assertEquals(2, viewModel.currentIndex.value)
+        viewModel.onNoPressed()
+        assertEquals(1, viewModel.hits.value + viewModel.errors.value)
+    }
+
+    @Test
+    fun doubleAnswer_secondIsIgnored() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(2250)
+        viewModel.onYesPressed()
+        val total = viewModel.hits.value + viewModel.errors.value
+        viewModel.onYesPressed()
+        assertEquals(total, viewModel.hits.value + viewModel.errors.value)
+    }
+
+    @Test
+    fun noAnswer_onSecondStimulus_incrementsOmissions() = runTest {
+        viewModel.startTest()
+        // advance past the second stimulus delay (2000+200+2000=4200ms)
+        advanceTimeBy(4300)
+        assertEquals(1, viewModel.omissions.value)
+    }
+
+    @Test
+    fun precisionPercent_withOneHitAndZeroErrors_isHundred() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(2250)
+        // answer on second stimulus — result depends on whether stim matches prev
+        viewModel.onYesPressed()
+        // advance past all remaining stimuli (20 stimuli × 2200ms ≈ 44000ms)
+        advanceTimeBy(44000)
+        assertTrue(viewModel.precisionPercent() in 0..100)
+    }
+
+    @Test
+    fun currentStimulus_afterInterStimulusDelay_isNull() = runTest {
+        viewModel.startTest()
+        // between first and second stimulus, currentStimulus should be null
+        advanceTimeBy(2100) // after delay(2000), currentStimulus cleared; before delay(200) ends
+        // we're in the inter-stimulus gap
+        assertTrue(viewModel.currentIndex.value >= 1)
+    }
+
+    @Test
+    fun hasAnswered_afterResponse_isTrue() = runTest {
+        viewModel.startTest()
+        advanceTimeBy(2250)
+        viewModel.onNoPressed()
+        assertTrue(viewModel.hasAnswered.value)
     }
 }

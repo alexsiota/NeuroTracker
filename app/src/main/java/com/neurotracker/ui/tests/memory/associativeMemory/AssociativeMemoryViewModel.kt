@@ -43,6 +43,14 @@ import com.neurotracker.data.session.SessionManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel del Test de Memoria Asociativa.
+ *
+ * Gestiona la memorización de pares, la fase de recuperación, el feedback
+ * inmediato y la persistencia del resultado final.
+ *
+ * @param application Contexto de aplicación para Room y SessionManager.
+ */
 class AssociativeMemoryViewModel(application: Application) : AndroidViewModel(application) {
 
     /**

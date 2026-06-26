@@ -1,4 +1,4 @@
-package com.neurotracker.executive.taskswitching
+package com.neurotracker.ui.test.executive.taskswitching
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

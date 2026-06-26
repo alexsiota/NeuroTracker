@@ -1,4 +1,4 @@
-package com.neurotracker.coordination.objecttracking
+package com.neurotracker.ui.test.coordination.objecttracking
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

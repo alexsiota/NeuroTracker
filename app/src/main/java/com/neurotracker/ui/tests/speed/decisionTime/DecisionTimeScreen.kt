@@ -3,7 +3,7 @@ package com.neurotracker.ui.tests.speed.decisionTime
 /**
  * Pantalla del Test de Tiempo de Decisión.
  *
- * ─── Fix: usar [DecisionTimeViewModel.answeredUi] para deshabilitar botones ──
+ * ─── Nota: usar [DecisionTimeViewModel.answeredUi] para deshabilitar botones ──
  *
  * El ViewModel ahora expone [answeredUi] (observable) en lugar de [hasAnswered]
  * (flag @Volatile no observable). La pantalla usa [answeredUi] para deshabilitar
@@ -104,7 +104,7 @@ fun DecisionTimeScreen(navController: NavController) {
                                         row.forEach { option ->
                                             val globalIndex = item.options.indexOf(option)
                                             val isSelected  = viewModel.selectedIndex.value == globalIndex
-                                            // FIX: usar answeredUi (observable) en lugar de hasAnswered (@Volatile)
+                                            // Nota: usar answeredUi (observable) en lugar de hasAnswered (@Volatile)
                                             val isDisabled  = viewModel.answeredUi.value
 
                                             Box(

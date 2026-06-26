@@ -1,4 +1,4 @@
-package com.neurotracker.memory.objectmemory
+package com.neurotracker.ui.test.memory.objectmemory
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

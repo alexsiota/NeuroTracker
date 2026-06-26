@@ -13,8 +13,19 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel del Test de Stroop.
+ *
+ * Gestiona la generación de estímulos color-palabra, el registro de respuestas,
+ * los tiempos de reacción y la persistencia del resultado final.
+ *
+ * @param application Contexto de aplicación para acceder a Room y sesión.
+ */
 class StroopViewModel(application: Application) : AndroidViewModel(application) {
 
+    /**
+     * Estados posibles del flujo del test.
+     */
     enum class TestState { IDLE, RUNNING, FINISHED }
 
     private val db             = NeuroTrackerDatabase.getDatabase(application)
@@ -49,6 +60,9 @@ class StroopViewModel(application: Application) : AndroidViewModel(application) 
     private var shownAt       = 0L
     private var testJob: Job? = null
 
+    /**
+     * Inicia el test reiniciando contadores, rondas y tiempos.
+     */
     fun startTest() {
         hits.value = 0; errors.value = 0; omissions.value = 0
         currentRound.value = 0; reactionTimes.clear()
@@ -70,6 +84,9 @@ class StroopViewModel(application: Application) : AndroidViewModel(application) 
         finishTest()
     }
 
+    /**
+     * Genera una palabra y un color de tinta para la ronda actual.
+     */
     private fun generateStimulus() {
         val wordIndex  = words.indices.random()
         val colorIndex = colorPairs.indices.random()
@@ -79,6 +96,11 @@ class StroopViewModel(application: Application) : AndroidViewModel(application) 
         currentItem.value = StroopItem(word, color, isMatch)
     }
 
+    /**
+     * Registra si el usuario considera que palabra y color coinciden.
+     *
+     * @param userSaysMatch true si el usuario responde que coinciden.
+     */
     fun onUserAnswer(userSaysMatch: Boolean) {
         if (testState.value != TestState.RUNNING || answered.value) return
         answered.value = true
@@ -86,11 +108,19 @@ class StroopViewModel(application: Application) : AndroidViewModel(application) 
         if (userSaysMatch == currentItem.value?.isCorrect) hits.value++ else errors.value++
     }
 
+    /**
+     * Calcula la precisión del test.
+     *
+     * @return Porcentaje de aciertos sobre respuestas y omisiones.
+     */
     fun precisionPercent(): Int {
         val total = hits.value + errors.value + omissions.value
         return if (total == 0) 0 else ((hits.value.toFloat() / total) * 100).toInt()
     }
 
+    /**
+     * Reinicia el test al estado inicial y cancela la ejecución activa.
+     */
     fun resetTest() {
         testJob?.cancel()
         testState.value     = TestState.IDLE
@@ -100,12 +130,18 @@ class StroopViewModel(application: Application) : AndroidViewModel(application) 
         reactionTimes.clear()
     }
 
+    /**
+     * Finaliza el test, calcula el tiempo medio y cambia a resultados.
+     */
     private fun finishTest() {
         avgReactionMs.value = if (reactionTimes.isNotEmpty()) reactionTimes.average().toLong() else 0L
         testState.value = TestState.FINISHED
         saveResult()
     }
 
+    /**
+     * Persiste el resultado del test con la última muestra EEG disponible.
+     */
     private fun saveResult() {
         val avg = avgReactionMs.value.takeIf { it > 0 } ?: return
         viewModelScope.launch {

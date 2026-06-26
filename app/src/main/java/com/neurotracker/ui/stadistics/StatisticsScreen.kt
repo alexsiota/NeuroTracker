@@ -36,9 +36,30 @@ private val BetaColor  = Color(0xFF1565C0)
 private val GammaColor = Color(0xFFE65100)
 private val ThetaColor = Color(0xFF6A1B9A)
 
+/**
+ * Devuelve el indicador textual asociado a una precisión media.
+ *
+ * @param pct Porcentaje de precisión.
+ * @return Indicador visual usado en resúmenes.
+ */
 private fun precisionEmoji(pct: Float) = when { pct >= 80 -> "✅"; pct >= 50 -> "⚠️"; else -> "❌" }
+
+/**
+ * Selecciona el color semántico de una precisión media.
+ *
+ * @param p Porcentaje de precisión.
+ * @return Color para precisión alta, media o baja.
+ */
 private fun precisionColorFn(p: Float): Color = when { p >= 80 -> Color(0xFF2E7D32); p >= 50 -> Color(0xFFE65100); else -> Color(0xFFC62828) }
 
+/**
+ * Pantalla de estadísticas globales del usuario.
+ *
+ * Muestra resumen de actividad, evolución de precisión, rendimiento por
+ * bloque cognitivo y medias de actividad EEG.
+ *
+ * @param navController Controlador usado para volver a la pantalla anterior.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(navController: NavController) {
@@ -247,11 +268,24 @@ private fun SummaryCard(
     }
 }
 
+/**
+ * Título de sección para bloques internos de estadísticas.
+ *
+ * @param text Texto que identifica la sección.
+ */
 @Composable
 private fun SectionTitle(text: String) {
     Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 }
 
+/**
+ * Gráfico de línea para representar evolución porcentual.
+ *
+ * @param points Valores de precisión en orden temporal.
+ * @param lineColor Color de la línea principal.
+ * @param gridColor Color de la cuadrícula.
+ * @param modifier Modificador aplicado al canvas.
+ */
 @Composable
 private fun LineChart(points: List<Float>, lineColor: Color, gridColor: Color, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -268,6 +302,14 @@ private fun LineChart(points: List<Float>, lineColor: Color, gridColor: Color, m
     }
 }
 
+/**
+ * Gráfico de barras para puntos estadísticos de un bloque cognitivo.
+ *
+ * @param points Valores asociados a tests o categorías.
+ * @param labelColor Color reservado para etiquetas del gráfico.
+ * @param gridColor Color de la cuadrícula.
+ * @param modifier Modificador aplicado al canvas.
+ */
 @Composable
 private fun BarChart(points: List<StatPoint>, labelColor: Color, gridColor: Color, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -285,6 +327,11 @@ private fun BarChart(points: List<StatPoint>, labelColor: Color, gridColor: Colo
     }
 }
 
+/**
+ * Tarjeta con el resumen de rendimiento de un bloque cognitivo.
+ *
+ * @param block Estadísticas agregadas del bloque.
+ */
 @Composable
 private fun BlockCard(block: BlockStats) {
     val trendEmoji = when { block.trend>5f->"📈"; block.trend<-5f->"📉"; else->"➡️" }
@@ -320,6 +367,13 @@ private fun BlockCard(block: BlockStats) {
     }
 }
 
+/**
+ * Barra horizontal para mostrar la potencia media de una banda EEG.
+ *
+ * @param label Nombre de la banda.
+ * @param value Valor EEG original entre -1 y 1.
+ * @param color Color asociado a la banda.
+ */
 @Composable
 private fun EegBandBar(label: String, value: Float, color: Color) {
     val norm = ((value+1f)/2f).coerceIn(0f,1f)

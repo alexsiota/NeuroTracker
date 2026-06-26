@@ -179,4 +179,66 @@ class RegisterViewModelTest {
         assertTrue(viewModel.birthDateText.value.isNotBlank())
         assertNull(viewModel.errorMessage.value)
     }
+
+    @Test
+    fun onBirthDateSelected_whenErrorAlreadySet_clearsError() = runTest {
+        viewModel.register { } // triggers empty-fields error
+        assertNotNull(viewModel.errorMessage.value)
+        viewModel.onBirthDateSelected(946684800000L)
+        assertNull(viewModel.errorMessage.value)
+    }
+
+    @Test
+    fun register_withValidationError_doesNotSetIsLoading() = runTest {
+        viewModel.register { } // empty fields → validation fails before launch
+        assertFalse(viewModel.isLoading.value)
+    }
+
+    @Test
+    fun successCountdown_initialValue_isFive() {
+        assertEquals(5, viewModel.successCountdown.value)
+    }
+
+    @Test
+    fun showSuccessModal_initialValue_isFalse() {
+        assertFalse(viewModel.showSuccessModal.value)
+    }
+
+    @Test
+    fun birthDateMillis_initialValue_isNull() {
+        assertNull(viewModel.birthDateMillis.value)
+    }
+
+    @Test
+    fun birthDateText_initialValue_isEmpty() {
+        assertTrue(viewModel.birthDateText.value.isBlank())
+    }
+
+    @Test
+    fun onBirthDateSelected_formatsDateCorrectly() {
+        viewModel.onBirthDateSelected(0L) // 1970-01-01
+        assertTrue(viewModel.birthDateText.value.contains("1970"))
+    }
+
+    @Test
+    fun register_withOnlyName_setsEmptyFieldsError() = runTest {
+        viewModel.onNameChange("Álex")
+        var navigated = false
+        viewModel.register { navigated = true }
+        assertFalse(navigated)
+        assertEquals("No se puede registrar con campos vacíos", viewModel.errorMessage.value)
+    }
+
+    @Test
+    fun register_withNameEmailAndPassword_butMissingBirthDate_setsEmptyFieldsError() = runTest {
+        viewModel.onNameChange("Álex")
+        viewModel.onEmailChange("alex@test.com")
+        viewModel.onPasswordChange("password123")
+        viewModel.onRepeatPasswordChange("password123")
+        // birthDate NOT set
+        var navigated = false
+        viewModel.register { navigated = true }
+        assertFalse(navigated)
+        assertEquals("No se puede registrar con campos vacíos", viewModel.errorMessage.value)
+    }
 }

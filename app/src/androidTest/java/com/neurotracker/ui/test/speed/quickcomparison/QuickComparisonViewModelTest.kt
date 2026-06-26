@@ -1,4 +1,4 @@
-package com.neurotracker.speed.quickcomparison
+package com.neurotracker.ui.test.speed.quickcomparison
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

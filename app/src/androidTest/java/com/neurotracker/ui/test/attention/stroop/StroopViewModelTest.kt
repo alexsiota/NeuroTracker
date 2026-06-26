@@ -1,4 +1,4 @@
-package com.neurotracker.attention.stroop
+package com.neurotracker.ui.test.attention.stroop
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

@@ -1,4 +1,4 @@
-package com.neurotracker.speed.sequenceordering
+package com.neurotracker.ui.test.speed.sequenceordering
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

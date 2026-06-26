@@ -1,4 +1,4 @@
-package com.neurotracker.coordination.visuomotor
+package com.neurotracker.ui.test.coordination.visuomotor
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

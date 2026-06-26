@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
+    id("jacoco")
 }
 
 android {
@@ -20,6 +21,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableAndroidTestCoverage = true
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -67,6 +71,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("io.mockk:mockk:1.13.10")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
     // Test Room (instrumentados)
     androidTestImplementation("androidx.room:room-testing:2.6.1")
@@ -78,4 +83,64 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// ─── JaCoCo coverage report ──────────────────────────────────────────────────
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+val jacocoExcludes = listOf(
+    // Android boilerplate
+    "**/R.class", "**/R\$*.class",
+    "**/BuildConfig.*", "**/Manifest*.*",
+    "**/*Test*.*", "android/**/*.*",
+    // Kotlin/Compose generated code
+    "**/*\$\$serializer*",
+    "**/*ComposableSingletons*",
+    "**/*\$\$inlined*",
+    // Pure UI packages (no ViewModel logic, 0% coverage)
+    "**/ui/theme/**",
+    "**/ui/onboarding/**",
+    "**/ui/welcome/**",
+    "**/ui/tests/selector/**",
+    "**/ui/tests/components/**",
+    "**/ui/accessibility/**",
+    // Entry points and navigation
+    "**/MainActivity*",
+    "**/Routes*",
+    // Compose screen files (exclude Screen composables, keep ViewModels)
+    "**/*Screen*",
+    "**/*Screen\$*",
+    // ViewModelFactory classes (thin boilerplate)
+    "**/*ViewModelFactory*",
+)
+
+tasks.register<JacocoReport>("jacocoAndroidTestReport") {
+    group = "Reporting"
+    description = "Generates JaCoCo HTML/XML coverage report (data layer + ViewModels only)"
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/coverage/html"))
+    }
+
+    sourceDirectories.setFrom(files("${projectDir}/src/main/java"))
+
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+            exclude(jacocoExcludes)
+        },
+        fileTree(layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
+            exclude(jacocoExcludes)
+        }
+    )
+
+    executionData.setFrom(
+        fileTree(layout.buildDirectory) {
+            include("outputs/code_coverage/debugAndroidTest/connected/**/*.ec")
+        }
+    )
 }
