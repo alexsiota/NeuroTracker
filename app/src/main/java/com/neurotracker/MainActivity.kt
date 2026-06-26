@@ -30,6 +30,7 @@ import com.neurotracker.ui.forgotpassword.ResetPasswordScreen
 import com.neurotracker.ui.forgotpassword.VerifyCodeScreen
 import com.neurotracker.ui.history.HistoryScreen
 import com.neurotracker.ui.login.LoginScreen
+import com.neurotracker.ui.main.BadgeUnlockOverlay
 import com.neurotracker.ui.main.MainScreen
 import com.neurotracker.ui.navigation.Routes
 import com.neurotracker.ui.onboarding.OnboardingScreen
@@ -237,6 +238,11 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.COGNITIVE_FATIGUE) { CognitiveFatigueScreen(navController) }
                     composable(Routes.DUAL_TASK)         { DualTaskScreen(navController) }
                 }
+
+                // Diálogo global de logro desbloqueado. Se coloca fuera del NavHost
+                // para que sea visible desde cualquier pantalla en el momento exacto
+                // del desbloqueo, sin necesidad de modificar cada pantalla de test.
+                BadgeUnlockOverlay()
             }
         }
     }

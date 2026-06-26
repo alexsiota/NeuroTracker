@@ -9,6 +9,7 @@ import com.neurotracker.data.database.NeuroTrackerDatabase
 import com.neurotracker.data.entities.TestResultEntity
 import com.neurotracker.data.repository.TestResultRepository
 import com.neurotracker.data.repository.UserRepository
+import com.neurotracker.data.session.BadgeUnlockInfo
 import com.neurotracker.data.session.SessionEvents
 import com.neurotracker.data.session.SessionManager
 import com.neurotracker.viewmodel.BadgeUi
@@ -76,7 +77,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Descarta la notificación del último logro desbloqueado.
      */
-    fun dismissBadgeNotification() { newlyUnlockedBadge.value = null }
+    fun dismissBadgeNotification() {
+        newlyUnlockedBadge.value = null
+        SessionEvents.clearBadgeUnlocked()
+    }
 
     /**
      * Cierra la sesión del usuario actual.
@@ -93,6 +97,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         isFirstLoad = true
         previousUnlockedTitles = setOf()
         dataJob?.cancel()
+        SessionEvents.clearBadgeUnlocked()
         loadUser()
     }
 
@@ -216,7 +221,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val currentUnlocked = newBadges.filter { it.unlocked }.map { it.title }.toSet()
                     val justUnlocked    = currentUnlocked - previousUnlockedTitles
                     if (justUnlocked.isNotEmpty()) {
-                        newlyUnlockedBadge.value = newBadges.first { it.title in justUnlocked }
+                        val badge = newBadges.first { it.title in justUnlocked }
+                        newlyUnlockedBadge.value = badge
+                        SessionEvents.notifyBadgeUnlocked(
+                            BadgeUnlockInfo(badge.emoji, badge.title, badge.description)
+                        )
                     }
                     previousUnlockedTitles = currentUnlocked
                 }
