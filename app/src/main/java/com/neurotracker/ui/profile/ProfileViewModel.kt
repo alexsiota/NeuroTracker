@@ -111,7 +111,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         val email   = userEmail.value.ifBlank { return }
         viewModelScope.launch(Dispatchers.IO) {
             val context = getApplication<Application>()
-            val stream  = context.contentResolver.openInputStream(tempUri)
+            val stream  = try { context.contentResolver.openInputStream(tempUri) } catch (e: Exception) { null }
             val bitmap  = BitmapFactory.decodeStream(stream)
             stream?.close()
             if (bitmap != null) {
@@ -139,7 +139,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         val email = userEmail.value.ifBlank { return }
         viewModelScope.launch(Dispatchers.IO) {
             val context = getApplication<Application>()
-            val stream  = context.contentResolver.openInputStream(uri)
+            val stream  = try { context.contentResolver.openInputStream(uri) } catch (e: Exception) { null }
             val bitmap  = BitmapFactory.decodeStream(stream)
             stream?.close()
             if (bitmap != null) {

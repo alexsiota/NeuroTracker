@@ -1,6 +1,7 @@
 package com.neurotracker.ui.main
 
 import android.app.Application
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,6 +46,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var userName        = mutableStateOf(""); private set
     var userEmail       = mutableStateOf(""); private set
+    var photoVersion    = mutableIntStateOf(0); private set
     var recentTests     = mutableStateOf<List<RecentTestUi>>(emptyList()); private set
     var avgPrecisionAll = mutableStateOf(0);  private set
     var streakDays      = mutableStateOf(0);  private set
@@ -68,6 +70,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         loadUser()
         startCountdowns()
         listenEmailChanges()
+        listenPhotoChanges()
     }
 
     /**
@@ -105,6 +108,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             SessionEvents.emailChanged.collect {
                 reload()
+            }
+        }
+    }
+
+    private fun listenPhotoChanges() {
+        viewModelScope.launch {
+            SessionEvents.photoChanged.collect {
+                photoVersion.intValue++
             }
         }
     }

@@ -70,8 +70,12 @@ fun ProfileScreen(
     var showSupportDialog by remember { mutableStateOf(false) }
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    val cameraLauncher  = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success -> viewModel.onCameraTaken(success) }
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? -> viewModel.onGalleryImageSelected(uri) }
+    val cameraLauncher  = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        viewModel.onCameraTaken(success)
+    }
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        viewModel.onGalleryImageSelected(uri)
+    }
 
     Scaffold(
         topBar = {
@@ -227,6 +231,7 @@ fun ProfileScreen(
  */
 @Composable
 private fun UserPhotoCard(viewModel: ProfileViewModel) {
+    val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(2.dp)) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -240,7 +245,12 @@ private fun UserPhotoCard(viewModel: ProfileViewModel) {
             ) {
                 key(viewModel.photoVersion.intValue) {
                     if (viewModel.profilePhotoUri.value != null) {
-                        AsyncImage(model = viewModel.profilePhotoUri.value, contentDescription = "Foto de perfil", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().clip(CircleShape))
+                        AsyncImage(
+                            model              = buildProfileImageRequest(context, viewModel.profilePhotoUri.value, viewModel.userEmail.value),
+                            contentDescription = "Foto de perfil",
+                            contentScale       = ContentScale.Crop,
+                            modifier           = Modifier.fillMaxSize().clip(CircleShape)
+                        )
                     } else {
                         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary, CircleShape), contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.Person, contentDescription = "Avatar por defecto", tint = Color.White, modifier = Modifier.size(32.dp))
@@ -255,14 +265,12 @@ private fun UserPhotoCard(viewModel: ProfileViewModel) {
             Spacer(Modifier.width(16.dp))
 
             Column {
-                // Saludo con el nombre actual
                 Text(
                     "Hola, ${viewModel.userName.value.ifBlank { "Usuario" }}",
                     style      = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(viewModel.userEmail.value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Pulsa para cambiar foto", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
