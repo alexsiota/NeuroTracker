@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuración de rutas para FileProvider (androidx.core.content.FileProvider).
+
+    Define qué directorios del almacenamiento interno puede exponer FileProvider
+    como URIs de contenido (content://), necesarias desde Android 7+ (API 24)
+    para compartir archivos con otras apps (cámara, Coil, etc.) sin exponer
+    rutas file:// que Android bloquea por seguridad.
+
+    Declarado en AndroidManifest.xml bajo:
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    ─── Rutas declaradas ────────────────────────────────────────────────────────
+
+    1. profile_photos (files-path):
+       Apunta a Context.filesDir/profile_photos/
+       Debe coincidir EXACTAMENTE con ProfilePhotoManager.PHOTO_DIR = "profile_photos".
+       Se usa en ProfilePhotoManager.getPhotoUri() para que Coil pueda leer
+       las fotos de perfil guardadas en almacenamiento interno persistente.
+
+       ⚠️ El crash "Failed to find configured root" ocurre cuando este path
+       NO coincide con la subcarpeta real donde ProfilePhotoManager guarda
+       los archivos. El path anterior era "profile/" en lugar de "profile_photos/",
+       lo que provocaba que FileProvider no encontrara la ruta y lanzara
+       IllegalArgumentException en tiempo de ejecución.
+
+    2. camera_photos (cache-path):
+       Apunta a Context.cacheDir/ (raíz del caché).
+       Se usa en ProfileViewModel.prepareCameraUri() para crear el archivo
+       temporal "camera_temp.jpg" donde la app de cámara escribe la foto.
+       El caché puede ser borrado por el sistema cuando hay poco espacio,
+       por eso la foto se copia inmediatamente a files/profile_photos/ en
+       ProfileViewModel.onCameraTaken() antes de mostrarse en la UI.
+-->
+<paths>
+    <!--
+        Fotos de perfil persistentes.
+        Ruta real: /data/data/com.neurotracker/files/profile_photos/
+        Debe coincidir con ProfilePhotoManager.PHOTO_DIR = "profile_photos"
+        Usado por: ProfilePhotoManager.getPhotoUri()
+    -->
+    <files-path
+        name="profile_photos"
+        path="profile_photos/" />
+
+    <!--
+        Archivo temporal de cámara.
+        Ruta real: /data/data/com.neurotracker/cache/
+        Usado por: ProfileViewModel.prepareCameraUri() → "camera_temp.jpg"
+    -->
+    <cache-path
+        name="camera_photos"
+        path="." />
+</paths>
